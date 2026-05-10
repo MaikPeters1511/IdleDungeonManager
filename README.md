@@ -1,60 +1,74 @@
-# IdleDungeonManager
+<div align="center">
+  <img src="public/hero-image.png" alt="Idle Dungeon Manager Hero Image" width="100%">
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.10.
+  # 🏰 Idle Dungeon Manager
 
-## Development server
+  **Manage your heroes, conquer dark dungeons, and amass legendary wealth!**
 
-To start a local development server, run:
+  [![Angular](https://img.shields.io/badge/Angular-21+-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0+-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-```bash
-ng serve
-```
+  [Features](#-key-features) • [Tech Stack](#-tech-stack) • [Installation](#-getting-started) • [Gameplay](#-gameplay)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+</div>
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ✨ Key Features
 
-```bash
-ng generate component component-name
-```
+*   **🛡️ Hero Management**: Recruit and level up unique heroes like **Alaric (Warrior)**, **Zephyr (Mage)**, and **Shadow (Rogue)**.
+*   **⚔️ Dungeon Expeditions**: Deploy your heroes to dangerous locations such as the **Goblin Cave**, **Haunted Crypt**, and the legendary **Dragon Lair**.
+*   **💰 Dynamic Economy**: Earn gold, gems, and essence to fund your empire.
+*   **📈 Strategic Upgrades**: Invest in permanent upgrades like *Greedy Goblins* for more gold or *Swift Boots* for faster runs.
+*   **🏆 Achievements**: Unlock rewards as you reach new milestones in your dungeon management career.
+*   **💤 Offline Progress**: Your heroes continue to fight and earn gold even when you're away!
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🛠️ Tech Stack
 
-```bash
-ng generate --help
-```
+This project is built with modern, high-performance web technologies:
 
-## Building
+*   **Framework**: [Angular 21](https://angular.io/) (Signal-based reactivity)
+*   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
+*   **Icons**: [Lucide Angular](https://lucide.dev/)
+*   **Persistence**: LocalStorage with state versioning
+*   **Tooling**: Vite-powered build system
 
-To build the project run:
+## 🚀 Getting Started
 
-```bash
-ng build
-```
+### Prerequisites
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+*   [Node.js](https://nodejs.org/) (v18 or higher)
+*   npm (v9 or higher)
 
-## Running unit tests
+### Installation
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MaikPeters1511/IdleDungeonManager.git
+   ```
 
-```bash
-ng test
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Running end-to-end tests
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
-For end-to-end (e2e) testing, run:
+4. Open your browser and navigate to `http://localhost:4200`
 
-```bash
-ng e2e
-```
+## 🎮 Gameplay
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+1.  **Unlock Heroes**: Start with Alaric and unlock more powerful heroes as you earn gold.
+2.  **Assign Dungeons**: Select a hero and choose a dungeon that matches their power level.
+3.  **Upgrade**: Use your earnings to level up heroes or buy global upgrades in the shop.
+4.  **Complete Achievements**: Check the quest log for extra rewards.
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-# IdleDungeonManager
+<div align="center">
+  <sub>Built with ❤️ by [MaikPeters1511](https://github.com/MaikPeters1511)</sub>
+</div>
