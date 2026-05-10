@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
-import { GameState, Hero, Upgrade, UpgradeType, Dungeon } from '../core/interfaces/game-state.interface';
+import { GameState, Hero, Upgrade, UpgradeType, Dungeon, Quest } from '../core/interfaces/game-state.interface';
 import { GameEngine } from '../engine/game-engine';
 import { SaveService } from './save.service';
 import { GAME_CONSTANTS } from '../core/constants/game-data';
@@ -20,6 +20,7 @@ export class GameService {
   public readonly dungeons = computed(() => this.state().dungeons);
   public readonly upgrades = computed(() => this.state().upgrades);
   public readonly stats = computed(() => this.state().stats);
+  public readonly quests = computed(() => this.state().quests || []);
 
   private lastTickTime = Date.now();
   private gameLoopInterval: any;
@@ -75,7 +76,11 @@ export class GameService {
     this._state.update(state => ({
       ...state,
       resources: { ...state.resources, gold: state.resources.gold + (1 * (1 + GameEngine.getUpgradeBonus(state, UpgradeType.GOLD_GAIN))) },
-      stats: { ...state.stats, totalGoldEarned: state.stats.totalGoldEarned + (1 * (1 + GameEngine.getUpgradeBonus(state, UpgradeType.GOLD_GAIN))) }
+      stats: { 
+        ...state.stats, 
+        totalGoldEarned: state.stats.totalGoldEarned + (1 * (1 + GameEngine.getUpgradeBonus(state, UpgradeType.GOLD_GAIN))),
+        totalClicks: (state.stats.totalClicks || 0) + 1
+      }
     }));
   }
 
@@ -90,6 +95,7 @@ export class GameService {
         return {
           ...state,
           resources: { ...state.resources, gold: state.resources.gold - cost },
+          stats: { ...state.stats, totalHeroLevels: (state.stats.totalHeroLevels || 0) + 1 },
           heroes: state.heroes.map(h => h.id === heroId ? { 
             ...h, 
             level: h.level + 1, 
@@ -157,6 +163,25 @@ export class GameService {
         };
       }
       return state;
+    });
+  }
+
+  public claimQuestReward(questId: string): void {
+    this._state.update(state => {
+      const quest = state.quests.find(q => q.id === questId);
+      if (!quest || !quest.isCompleted || quest.isClaimed) return state;
+
+      const newState = {
+        ...state,
+        resources: { ...state.resources },
+        quests: state.quests.map(q => q.id === questId ? { ...q, isClaimed: true } : q)
+      };
+
+      if (quest.reward.gold) newState.resources.gold += quest.reward.gold;
+      if (quest.reward.gems) newState.resources.gems += quest.reward.gems;
+      if (quest.reward.xp) newState.resources.xp += quest.reward.xp;
+      
+      return newState;
     });
   }
 }

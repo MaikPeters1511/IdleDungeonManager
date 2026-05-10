@@ -2,7 +2,9 @@ export enum HeroClass {
   WARRIOR = 'Warrior',
   MAGE = 'Mage',
   ROGUE = 'Rogue',
-  CLERIC = 'Cleric'
+  CLERIC = 'Cleric',
+  PALADIN = 'Paladin',
+  ARCHER = 'Archer'
 }
 
 export interface Resources {
@@ -11,6 +13,23 @@ export interface Resources {
   xp: number;
   dungeonKeys: number;
   essence: number;
+}
+
+export enum EquipmentRarity {
+  COMMON = 'Common',
+  RARE = 'Rare',
+  EPIC = 'Epic',
+  LEGENDARY = 'Legendary'
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  slot: 'Weapon' | 'Armor' | 'Accessory';
+  rarity: EquipmentRarity;
+  bonusDamage?: number;
+  bonusGold?: number;
+  bonusXp?: number;
 }
 
 export interface Hero {
@@ -28,6 +47,11 @@ export interface Hero {
   currentDungeonId?: string;
   dungeonProgress?: number; // 0 to duration
   lastAttackTime?: number;
+  equipment?: {
+    weapon?: Equipment;
+    armor?: Equipment;
+    accessory?: Equipment;
+  };
 }
 
 export interface Dungeon {
@@ -70,6 +94,25 @@ export interface Achievement {
   reward?: Partial<Resources>;
 }
 
+export enum QuestType {
+  COLLECT_GOLD = 'COLLECT_GOLD',
+  COMPLETE_DUNGEONS = 'COMPLETE_DUNGEONS',
+  UPGRADE_HEROES = 'UPGRADE_HEROES',
+  CLICK_MANUAL = 'CLICK_MANUAL'
+}
+
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  type: QuestType;
+  targetValue: number;
+  currentValue: number;
+  reward: Partial<Resources>;
+  isCompleted: boolean;
+  isClaimed: boolean;
+}
+
 export interface GameState {
   version: string;
   resources: Resources;
@@ -77,9 +120,13 @@ export interface GameState {
   dungeons: Dungeon[];
   upgrades: Upgrade[];
   achievements: Achievement[];
+  quests: Quest[];
+  inventory: Equipment[];
   stats: {
     totalGoldEarned: number;
     totalDungeonsCompleted: number;
+    totalClicks: number;
+    totalHeroLevels: number;
   };
   lastSaveTime: number;
   startTime: number;

@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
       <div class="p-8 pb-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl shadow-lg shadow-primary/20">
-            🏰
+            Castle
           </div>
           <div>
             <h1 class="text-xl font-black tracking-tight text-white leading-none">IDLE</h1>
@@ -61,6 +61,10 @@ import { CommonModule } from '@angular/common';
         <a routerLink="/upgrades" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">⚡</span>
           <span class="nav-text">Upgrades</span>
+        </a>
+        <a routerLink="/quests" routerLinkActive="nav-active" class="nav-item">
+          <span class="nav-icon">📜</span>
+          <span class="nav-text">Quests</span>
         </a>
         <a routerLink="/achievements" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">🏆</span>

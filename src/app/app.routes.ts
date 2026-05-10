@@ -4,6 +4,7 @@ import { HeroesComponent } from './ui/pages/heroes.component';
 import { DungeonsComponent } from './ui/pages/dungeons.component';
 import { UpgradesComponent } from './ui/pages/upgrades.component';
 import { AchievementsComponent } from './ui/pages/achievements.component';
+import { QuestsComponent } from './ui/pages/quests.component';
 import { SettingsComponent } from './ui/pages/settings.component';
 
 export const routes: Routes = [
@@ -12,6 +13,7 @@ export const routes: Routes = [
   { path: 'heroes', component: HeroesComponent },
   { path: 'dungeons', component: DungeonsComponent },
   { path: 'upgrades', component: UpgradesComponent },
+  { path: 'quests', component: QuestsComponent },
   { path: 'achievements', component: AchievementsComponent },
   { path: 'settings', component: SettingsComponent },
   { path: '**', redirectTo: 'dashboard' }

@@ -35,14 +35,34 @@ export class SaveService {
     // Versioning and migration logic
     if (state.version !== GAME_CONSTANTS.SAVE_VERSION) {
       console.log(`Migrating save from ${state.version} to ${GAME_CONSTANTS.SAVE_VERSION}`);
-      // Implement specific migrations here
       state.version = GAME_CONSTANTS.SAVE_VERSION;
     }
 
     // Ensure new properties exist
     if (!state.stats) {
-      state.stats = { totalGoldEarned: state.resources.gold, totalDungeonsCompleted: 0 };
+      state.stats = { ...INITIAL_GAME_STATE.stats };
     }
+    
+    // Fix missing stats properties
+    if (state.stats.totalClicks === undefined) state.stats.totalClicks = 0;
+    if (state.stats.totalHeroLevels === undefined) state.stats.totalHeroLevels = 0;
+
+    // Add quests if they don't exist
+    if (!state.quests || state.quests.length === 0) {
+      state.quests = INITIAL_GAME_STATE.quests.map(q => ({ ...q }));
+    }
+
+    // Ensure all heroes are present and update their recruitment costs for existing saves
+    INITIAL_GAME_STATE.heroes.forEach(initialHero => {
+      const existingHero = state.heroes.find((h: any) => h.id === initialHero.id);
+      if (existingHero) {
+        // Update recruitment cost to match new balance
+        existingHero.upgradeCost = initialHero.upgradeCost;
+      } else {
+        // Add new hero if it doesn't exist
+        state.heroes.push({ ...initialHero });
+      }
+    });
 
     return state as GameState;
   }

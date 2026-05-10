@@ -1,6 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
+import { GameEngine } from '../../engine/game-engine';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,10 +44,7 @@ import { GameService } from '../../services/game.service';
             <span class="text-yellow-500 opacity-50 group-hover:opacity-100 transition-opacity">💰</span>
           </div>
           <p class="text-3xl font-black text-white tabular-nums">{{ stats().totalGoldEarned | number:'1.0-0' }}</p>
-          <div class="mt-4 flex items-center gap-2">
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-bold">+12%</span>
-            <span class="text-[10px] text-slate-500">Since last login</span>
-          </div>
+          <p class="text-xs text-slate-500 mt-4">Total Gold Collected</p>
         </div>
 
         <div class="premium-card group">
@@ -93,16 +91,18 @@ import { GameService } from '../../services/game.service';
                   <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 shadow-inner border border-white/5 group-hover:border-primary/30 transition-colors">
                     <img [src]="getHeroImage(hero.heroClass)" class="w-full h-full object-cover" [alt]="hero.name">
                   </div>
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-end mb-3">
-                      <div>
-                        <span class="font-black text-lg text-white block">{{ hero.name }}</span>
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                      <div class="truncate">
+                        <span class="font-black text-lg text-white block truncate">{{ hero.name }}</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold truncate">
                           {{ getDungeonName(hero.currentDungeonId) }}
                         </span>
                       </div>
-                      <div class="text-right">
-                        <span class="text-xs font-black text-primary">{{ getDungeonProgressPercent(hero) | number:'1.0-0' }}%</span>
+                      <div class="text-right shrink-0">
+                        <span class="text-xs font-black text-primary tabular-nums">
+                          {{ getTimeRemaining(hero) | number:'1.1-1' }}s
+                        </span>
                       </div>
                     </div>
                     <!-- Progress Bar -->
@@ -150,12 +150,13 @@ import { GameService } from '../../services/game.service';
               <span class="text-accent">💡</span>
               <h4 class="text-xs font-black text-accent uppercase tracking-widest">Pro Tip</h4>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">Upgrade your <span class="text-white font-bold">Swift Boots</span> to clear dungeons faster and earn gold more efficiently!</p>
+            <p class="text-xs text-slate-400 leading-relaxed">Upgrade your <span class="text-white font-bold">Sharp Blades</span> to clear dungeons faster through raw power!</p>
           </div>
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: []
 })
 export class DashboardComponent {
   private readonly gameService = inject(GameService);
@@ -163,6 +164,7 @@ export class DashboardComponent {
   public readonly heroes = this.gameService.heroes;
   public readonly dungeons = this.gameService.dungeons;
   public readonly stats = this.gameService.stats;
+  public readonly gameState = this.gameService.state;
 
   public manualClick() {
     this.gameService.manualClick();
@@ -173,14 +175,7 @@ export class DashboardComponent {
   }
 
   public globalGps() {
-    let total = 0;
-    this.heroes().forEach(h => {
-      if (h.isUnlocked && h.currentDungeonId) {
-        const d = this.dungeons().find(du => du.id === h.currentDungeonId);
-        if (d) total += (d.goldReward / d.duration) * h.goldBonus;
-      }
-    });
-    return total || 0;
+    return GameEngine.calculateGlobalGoldPerSecond(this.gameState());
   }
 
   public getHeroImage(heroClass: string): string {
@@ -201,6 +196,15 @@ export class DashboardComponent {
     if (!hero.currentDungeonId || hero.dungeonProgress === undefined) return 0;
     const dungeon = this.dungeons().find(d => d.id === hero.currentDungeonId);
     if (!dungeon) return 0;
-    return Math.min((hero.dungeonProgress / dungeon.duration) * 100, 100);
+    const effectiveDuration = GameEngine.getEffectiveDungeonDuration(this.gameState(), dungeon, hero);
+    return Math.min((hero.dungeonProgress / effectiveDuration) * 100, 100);
+  }
+
+  public getTimeRemaining(hero: any): number {
+    if (!hero.currentDungeonId || hero.dungeonProgress === undefined) return 0;
+    const dungeon = this.dungeons().find(d => d.id === hero.currentDungeonId);
+    if (!dungeon) return 0;
+    const effectiveDuration = GameEngine.getEffectiveDungeonDuration(this.gameState(), dungeon, hero);
+    return Math.max(0, effectiveDuration - hero.dungeonProgress);
   }
 }

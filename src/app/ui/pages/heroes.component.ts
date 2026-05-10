@@ -9,7 +9,7 @@ import { GameEngine } from '../../engine/game-engine';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="space-y-10 animate-in slide-in-from-bottom-6 duration-700">
+    <div class="space-y-10 animate-in slide-in-from-bottom-6 duration-700 pb-20">
       <header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h2 class="text-4xl font-black text-white tracking-tight">Heroes Guild</h2>
@@ -21,9 +21,9 @@ import { GameEngine } from '../../engine/game-engine';
         </div>
       </header>
 
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
         @for (hero of heroes(); track hero.id) {
-          <div class="premium-card group relative flex flex-col sm:flex-row gap-6 !p-5" 
+          <div class="premium-card group relative flex flex-col sm:flex-row gap-8 !p-6" 
                [class.locked-hero]="!hero.isUnlocked">
             
             @if (!hero.isUnlocked) {
@@ -39,92 +39,112 @@ import { GameEngine } from '../../engine/game-engine';
               </div>
             }
 
-            <!-- Hero Portrait -->
-            <div class="relative shrink-0 mx-auto sm:mx-0">
-              <div class="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-slate-900 shadow-2xl border border-white/10 group-hover:border-primary/40 transition-all duration-500">
-                <img [src]="getHeroImage(hero.heroClass)" class="w-full h-full object-cover" [alt]="hero.name">
+            <!-- Hero Portrait & Equipment -->
+            <div class="flex flex-col gap-4 shrink-0 mx-auto sm:mx-0">
+              <div class="relative">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-white/10 group-hover:border-primary/40 transition-all duration-500">
+                  <img [src]="getHeroImage(hero.heroClass)" class="w-full h-full object-cover" [alt]="hero.name">
+                </div>
+                <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-secondary to-accent rounded-full text-xs font-black text-white shadow-xl border border-white/20 whitespace-nowrap z-10">
+                  Level {{ hero.level }}
+                </div>
               </div>
-              <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-secondary to-accent rounded-full text-[10px] font-black text-white shadow-xl border border-white/20 whitespace-nowrap z-10">
-                Lvl {{ hero.level }}
+
+              <!-- Equipment Slots -->
+              <div class="flex justify-center gap-2">
+                <div class="w-10 h-10 rounded-xl bg-slate-800/50 border border-white/5 flex items-center justify-center text-xs text-slate-600 hover:border-primary/30 cursor-help" title="Weapon Slot">
+                  {{ hero.equipment?.weapon ? '⚔️' : '🔘' }}
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-slate-800/50 border border-white/5 flex items-center justify-center text-xs text-slate-600 hover:border-primary/30 cursor-help" title="Armor Slot">
+                  {{ hero.equipment?.armor ? '🛡️' : '🔘' }}
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-slate-800/50 border border-white/5 flex items-center justify-center text-xs text-slate-600 hover:border-primary/30 cursor-help" title="Accessory Slot">
+                  {{ hero.equipment?.accessory ? '💍' : '🔘' }}
+                </div>
               </div>
             </div>
 
             <!-- Hero Details -->
             <div class="flex-1 flex flex-col min-w-0">
-              <div class="flex justify-between items-start mb-4">
+              <div class="flex justify-between items-start mb-6">
                 <div class="min-w-0">
-                  <h3 class="text-xl font-black text-white group-hover:text-primary transition-colors truncate">{{ hero.name }}</h3>
-                  <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">{{ hero.heroClass }}</span>
+                  <h3 class="text-2xl font-black text-white group-hover:text-primary transition-colors truncate">{{ hero.name }}</h3>
+                  <div class="flex items-center gap-3 mt-1">
+                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ hero.heroClass }}</span>
                     <span class="text-[10px] font-bold" [class.text-green-500]="hero.currentDungeonId" [class.text-slate-600]="!hero.currentDungeonId">
-                      {{ hero.currentDungeonId ? '• ACTIVE' : '• IDLE' }}
+                      {{ hero.currentDungeonId ? '• DEPLOYED' : '• IDLE' }}
                     </span>
                   </div>
                 </div>
                 <div class="text-right shrink-0">
-                  <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Task</p>
-                  <p class="text-xs font-bold text-slate-300 truncate max-w-[120px]">
-                    {{ hero.currentDungeonId ? getDungeonName(hero.currentDungeonId) : 'Resting' }}
+                  <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-none mb-1">Status</p>
+                  <p class="text-sm font-black text-slate-300 truncate max-w-[150px]">
+                    {{ hero.currentDungeonId ? getDungeonName(hero.currentDungeonId) : 'At Guild Hall' }}
                   </p>
                 </div>
               </div>
 
-              <!-- Compact Stats -->
-              <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs">⚔️</div>
+              <!-- Stats Grid -->
+              <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+                  <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-lg">⚔️</div>
                   <div>
-                    <p class="text-[9px] font-black text-slate-600 uppercase leading-none mb-1">Power</p>
-                    <p class="text-sm font-bold text-slate-200 leading-none">{{ hero.baseDamage | number }}</p>
+                    <p class="text-[10px] font-black text-slate-600 uppercase leading-none mb-1">Total Power</p>
+                    <p class="text-lg font-black text-white leading-none">{{ getEffectiveDamage(hero) | number }}</p>
                   </div>
                 </div>
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-xs">⏱️</div>
+                <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+                  <div class="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center text-lg">⏱️</div>
                   <div>
-                    <p class="text-[9px] font-black text-slate-600 uppercase leading-none mb-1">Speed</p>
-                    <p class="text-sm font-bold text-slate-200 leading-none">{{ hero.attackSpeed }}s</p>
+                    <p class="text-[10px] font-black text-slate-600 uppercase leading-none mb-1">Attack Speed</p>
+                    <p class="text-lg font-black text-white leading-none">{{ hero.attackSpeed }}s</p>
                   </div>
                 </div>
               </div>
 
-              <!-- Actions Area -->
-              <div class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-white/5">
+              <!-- Actions -->
+              <div class="flex flex-wrap gap-3 mt-auto">
                 <button (click)="upgradeHero(hero.id)" 
                         [disabled]="gold() < calculateUpgradeCost(hero)"
-                        class="flex-grow group/btn relative overflow-hidden flex items-center justify-between px-3 py-2.5 bg-white/5 hover:bg-primary transition-all duration-300 rounded-xl border border-white/5 hover:border-primary disabled:opacity-50">
+                        class="flex-grow group/btn relative overflow-hidden flex items-center justify-between px-4 py-3.5 bg-white/5 hover:bg-primary transition-all duration-300 rounded-2xl border border-white/5 hover:border-primary disabled:opacity-50">
                   <div class="flex items-center gap-2">
-                    <span class="text-sm">⚡</span>
-                    <span class="text-xs font-bold text-white">Train</span>
+                    <span class="text-lg group-hover:scale-110 transition-transform">⚡</span>
+                    <span class="text-sm font-black text-white">TRAIN HERO</span>
                   </div>
-                  <span class="text-xs font-black text-yellow-500 group-hover:text-white tabular-nums">
-                    {{ calculateUpgradeCost(hero) | number:'1.0-0' }}
-                  </span>
-                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_2s_infinite]"></div>
+                  <div class="flex flex-col items-end">
+                    <span class="text-[9px] font-black text-slate-500 uppercase group-hover:text-white/60">Cost</span>
+                    <span class="text-sm font-black text-yellow-500 group-hover:text-white tabular-nums">
+                      {{ calculateUpgradeCost(hero) | number:'1.0-0' }}
+                    </span>
+                  </div>
                 </button>
                 
-                <div class="dropdown dropdown-top dropdown-end flex-grow">
-                  <label tabindex="0" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-secondary/10 hover:bg-secondary transition-all duration-300 rounded-xl border border-secondary/30 text-white font-black cursor-pointer group/deploy">
-                    <span class="text-sm group-hover/deploy:rotate-12 transition-transform">🚩</span>
-                    <span class="text-xs uppercase">Deploy</span>
+                <div class="dropdown dropdown-top dropdown-end">
+                  <label tabindex="0" class="flex items-center justify-center gap-3 px-6 py-3.5 bg-secondary/10 hover:bg-secondary transition-all duration-300 rounded-2xl border border-secondary/30 text-white font-black cursor-pointer group/deploy min-w-[140px]">
+                    <span class="text-xl group-hover/deploy:rotate-12 transition-transform">🚩</span>
+                    <span class="text-sm uppercase">DEPLOY</span>
                   </label>
-                  <ul tabindex="0" class="dropdown-content z-[30] menu p-2 shadow-2xl bg-slate-950/95 backdrop-blur-2xl rounded-2xl w-64 border border-white/10 mb-4 space-y-1">
+                  <ul tabindex="0" class="dropdown-content z-[30] menu p-3 shadow-2xl bg-slate-950/98 backdrop-blur-2xl rounded-3xl w-72 border border-white/10 mb-4 space-y-2">
                     <li>
-                      <a (click)="assignToDungeon(hero.id, undefined)" class="flex items-center gap-3 text-error text-xs font-bold hover:bg-error/10 py-2.5 rounded-lg transition-all">
+                      <a (click)="assignToDungeon(hero.id, undefined)" class="flex items-center gap-3 text-error text-xs font-black hover:bg-error/10 p-3 rounded-xl transition-all">
                         <span>🛑</span> Recall Hero
                       </a>
                     </li>
                     <div class="h-px bg-white/5 my-1 mx-2"></div>
-                    <li class="menu-title px-4 py-1.5">
-                      <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Target Dungeon</span>
+                    <li class="menu-title px-4 py-2">
+                      <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Available Dungeons</span>
                     </li>
                     @for (dungeon of dungeons(); track dungeon.id) {
                       @if (dungeon.isUnlocked) {
                         <li>
                           <a (click)="assignToDungeon(hero.id, dungeon.id)" 
                              [class.bg-primary/10]="hero.currentDungeonId === dungeon.id"
-                             class="flex justify-between items-center py-2.5 px-4 rounded-lg hover:bg-white/5 transition-all text-xs">
-                            <span class="font-bold text-slate-200">{{ dungeon.name }}</span>
-                            <span class="text-[9px] font-black bg-white/5 px-2 py-0.5 rounded-full text-slate-500">{{ dungeon.duration }}s</span>
+                             class="flex justify-between items-center p-3 rounded-xl hover:bg-white/5 transition-all">
+                            <div class="flex flex-col">
+                              <span class="font-black text-sm text-slate-200">{{ dungeon.name }}</span>
+                              <span class="text-[9px] font-bold text-slate-500 uppercase">Est: {{ getDungeonDuration(dungeon, hero) | number:'1.1-1' }}s</span>
+                            </div>
+                            <span class="text-lg">🏚️</span>
                           </a>
                         </li>
                       }
@@ -135,8 +155,8 @@ import { GameEngine } from '../../engine/game-engine';
             </div>
 
             <!-- XP Progress Bar -->
-            <div class="absolute bottom-0 left-0 right-0 h-1 bg-slate-800/50 rounded-b-2xl overflow-hidden">
-              <div class="bg-gradient-to-r from-primary to-secondary h-full transition-all duration-500" 
+            <div class="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800/50 rounded-b-2xl overflow-hidden">
+              <div class="bg-gradient-to-r from-primary via-secondary to-accent h-full transition-all duration-500 shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" 
                    [style.width.%]="getXpPercent(hero)"></div>
             </div>
           </div>
@@ -148,9 +168,6 @@ import { GameEngine } from '../../engine/game-engine';
     .locked-hero {
       @apply grayscale opacity-80;
     }
-    @keyframes shimmer {
-      100% { transform: translateX(100%); }
-    }
   `]
 })
 export class HeroesComponent {
@@ -159,6 +176,7 @@ export class HeroesComponent {
   public readonly heroes = this.gameService.heroes;
   public readonly dungeons = this.gameService.dungeons;
   public readonly gold = computed(() => this.gameService.resources().gold);
+  public readonly gameState = this.gameService.state;
 
   public getHeroImage(heroClass: string): string {
     switch(heroClass) {
@@ -166,12 +184,22 @@ export class HeroesComponent {
       case 'Mage': return 'assets/heroes/mage.png';
       case 'Rogue': return 'assets/heroes/rogue.png';
       case 'Cleric': return 'assets/heroes/cleric.png';
+      case 'Paladin': return 'assets/heroes/paladin.png';
+      case 'Archer': return 'assets/heroes/archer.png';
       default: return 'assets/heroes/warrior.png';
     }
   }
 
   public getDungeonName(id: string): string {
     return this.dungeons().find(d => d.id === id)?.name || 'Unknown';
+  }
+
+  public getEffectiveDamage(hero: Hero): number {
+    return GameEngine.getHeroEffectiveDamage(this.gameState(), hero);
+  }
+
+  public getDungeonDuration(dungeon: any, hero: Hero): number {
+    return GameEngine.getEffectiveDungeonDuration(this.gameState(), dungeon, hero);
   }
 
   public calculateUpgradeCost(hero: Hero): number {
