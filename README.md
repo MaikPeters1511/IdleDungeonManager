@@ -3,72 +3,72 @@
 
   # 🏰 Idle Dungeon Manager
 
-  **Manage your heroes, conquer dark dungeons, and amass legendary wealth!**
+  **Verwalte deine Helden, erobere dunkle Dungeons und sammle legendären Reichtum an!**
 
   [![Angular](https://img.shields.io/badge/Angular-21+-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0+-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
   [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-  [Features](#-key-features) • [Tech Stack](#-tech-stack) • [Installation](#-getting-started) • [Gameplay](#-gameplay)
+  [Features](#-hauptmerkmale) • [Tech Stack](#-technologien) • [Installation](#-erste-schritte) • [Gameplay](#-gameplay)
 
 </div>
 
 ---
 
-## ✨ Key Features
+## ✨ Hauptmerkmale
 
-*   **🛡️ Hero Management**: Recruit and level up unique heroes like **Alaric (Warrior)**, **Zephyr (Mage)**, and **Shadow (Rogue)**.
-*   **⚔️ Dungeon Expeditions**: Deploy your heroes to dangerous locations such as the **Goblin Cave**, **Haunted Crypt**, and the legendary **Dragon Lair**.
-*   **💰 Dynamic Economy**: Earn gold, gems, and essence to fund your empire.
-*   **📈 Strategic Upgrades**: Invest in permanent upgrades like *Greedy Goblins* for more gold or *Swift Boots* for faster runs.
-*   **🏆 Achievements**: Unlock rewards as you reach new milestones in your dungeon management career.
-*   **💤 Offline Progress**: Your heroes continue to fight and earn gold even when you're away!
+*   **🛡️ Helden-Management**: Rekrutiere und verbessere einzigartige Helden wie **Alaric (Krieger)**, **Zephyr (Magier)** und **Shadow (Schurke)**.
+*   **⚔️ Dungeon-Expeditionen**: Entsende deine Helden an gefährliche Orte wie die **Goblin-Höhle**, die **Heimgesuchte Krypta** und den legendären **Drachenhort**.
+*   **💰 Dynamische Wirtschaft**: Verdiene Gold, Edelsteine und Essenz, um dein Imperium zu finanzieren.
+*   **📈 Strategische Upgrades**: Investiere in permanente Verbesserungen wie *Gierige Goblins* für mehr Gold oder *Flinke Stiefel* für schnellere Durchläufe.
+*   **🏆 Erfolge**: Schalte Belohnungen frei, während du neue Meilensteine in deiner Karriere als Dungeon-Manager erreichst.
+*   **💤 Offline-Fortschritt**: Deine Helden kämpfen weiter und verdienen Gold, auch wenn du nicht online bist!
 
-## 🛠️ Tech Stack
+## 🛠️ Technologien
 
-This project is built with modern, high-performance web technologies:
+Dieses Projekt wurde mit modernen, leistungsstarken Webtechnologien entwickelt:
 
-*   **Framework**: [Angular 21](https://angular.io/) (Signal-based reactivity)
+*   **Framework**: [Angular 21](https://angular.io/) (Signal-basierte Reaktivität)
 *   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
 *   **Icons**: [Lucide Angular](https://lucide.dev/)
-*   **Persistence**: LocalStorage with state versioning
-*   **Tooling**: Vite-powered build system
+*   **Speicherung**: LocalStorage mit Status-Versionierung
+*   **Tooling**: Vite-gestütztes Build-System
 
-## 🚀 Getting Started
+## 🚀 Erste Schritte
 
-### Prerequisites
+### Voraussetzungen
 
-*   [Node.js](https://nodejs.org/) (v18 or higher)
-*   npm (v9 or higher)
+*   [Node.js](https://nodejs.org/) (v18 oder höher)
+*   npm (v9 oder higher)
 
 ### Installation
 
-1. Clone the repository:
+1. Klone das Repository:
    ```bash
    git clone https://github.com/MaikPeters1511/IdleDungeonManager.git
    ```
 
-2. Install dependencies:
+2. Installiere die Abhängigkeiten:
    ```bash
    npm install
    ```
 
-3. Start the development server:
+3. Starte den Development-Server:
    ```bash
    npm start
    ```
 
-4. Open your browser and navigate to `http://localhost:4200`
+4. Öffne deinen Browser und gehe zu `http://localhost:4200`
 
 ## 🎮 Gameplay
 
-1.  **Unlock Heroes**: Start with Alaric and unlock more powerful heroes as you earn gold.
-2.  **Assign Dungeons**: Select a hero and choose a dungeon that matches their power level.
-3.  **Upgrade**: Use your earnings to level up heroes or buy global upgrades in the shop.
-4.  **Complete Achievements**: Check the quest log for extra rewards.
+1.  **Helden freischalten**: Beginne mit Alaric und schalte mächtigere Helden frei, sobald du genug Gold hast.
+2.  **Dungeons zuweisen**: Wähle einen Helden und einen passenden Dungeon basierend auf dessen Stärke aus.
+3.  **Verbessern**: Nutze deine Einnahmen, um Helden zu leveln oder globale Upgrades im Shop zu kaufen.
+4.  **Erfolge abschließen**: Schau in das Quest-Log für zusätzliche Belohnungen.
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by [MaikPeters1511](https://github.com/MaikPeters1511)</sub>
+  <sub>Erstellt mit ❤️ von [MaikPeters1511](https://github.com/MaikPeters1511)</sub>
 </div>
