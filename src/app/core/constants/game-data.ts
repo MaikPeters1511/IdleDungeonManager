@@ -1,7 +1,7 @@
 import { GameState, HeroClass, UpgradeType, QuestType } from '../interfaces/game-state.interface';
 
 export const INITIAL_GAME_STATE: GameState = {
-  version: '1.3.0',
+  version: '1.4.0',
   resources: {
     gold: 100,
     gems: 0,
@@ -21,7 +21,10 @@ export const INITIAL_GAME_STATE: GameState = {
       goldBonus: 1,
       critChance: 0.05,
       upgradeCost: 50,
-      isUnlocked: true
+      isUnlocked: true,
+      currentHp: 200,
+      maxHp: 200,
+      isResting: false
     },
     {
       id: 'h2',
@@ -34,7 +37,10 @@ export const INITIAL_GAME_STATE: GameState = {
       goldBonus: 1.1,
       critChance: 0.1,
       upgradeCost: 2500,
-      isUnlocked: false
+      isUnlocked: false,
+      currentHp: 100,
+      maxHp: 100,
+      isResting: false
     },
     {
       id: 'h3',
@@ -47,7 +53,10 @@ export const INITIAL_GAME_STATE: GameState = {
       goldBonus: 1.2,
       critChance: 0.2,
       upgradeCost: 15000,
-      isUnlocked: false
+      isUnlocked: false,
+      currentHp: 120,
+      maxHp: 120,
+      isResting: false
     },
     {
       id: 'h4',
@@ -60,7 +69,10 @@ export const INITIAL_GAME_STATE: GameState = {
       goldBonus: 1.5,
       critChance: 0.05,
       upgradeCost: 75000,
-      isUnlocked: false
+      isUnlocked: false,
+      currentHp: 110,
+      maxHp: 110,
+      isResting: false
     },
     {
       id: 'h5',
@@ -73,7 +85,10 @@ export const INITIAL_GAME_STATE: GameState = {
       goldBonus: 1.0,
       critChance: 0.15,
       upgradeCost: 350000,
-      isUnlocked: false
+      isUnlocked: false,
+      currentHp: 250,
+      maxHp: 250,
+      isResting: false
     },
     {
       id: 'h6',
@@ -86,7 +101,10 @@ export const INITIAL_GAME_STATE: GameState = {
       goldBonus: 1.3,
       critChance: 0.25,
       upgradeCost: 1250000,
-      isUnlocked: false
+      isUnlocked: false,
+      currentHp: 130,
+      maxHp: 130,
+      isResting: false
     }
   ],
   dungeons: [
@@ -97,9 +115,12 @@ export const INITIAL_GAME_STATE: GameState = {
       duration: 10,
       goldReward: 20,
       xpReward: 10,
-      dropChance: 0.1,
+      dropChance: 0.15,
       isUnlocked: true,
-      difficultyMultiplier: 1
+      difficultyMultiplier: 1,
+      damagePerSecond: 2,
+      isRaid: false,
+      keyCost: 0
     },
     {
       id: 'd2',
@@ -108,42 +129,82 @@ export const INITIAL_GAME_STATE: GameState = {
       duration: 30,
       goldReward: 100,
       xpReward: 50,
-      dropChance: 0.15,
+      dropChance: 0.25,
       isUnlocked: false,
-      difficultyMultiplier: 1.5
+      difficultyMultiplier: 1.5,
+      damagePerSecond: 5,
+      isRaid: false,
+      keyCost: 0
+    },
+    {
+      id: 'd_raid1',
+      name: 'Undead Catacombs (Raid)',
+      requiredPower: 1200,
+      duration: 60,
+      goldReward: 600,
+      xpReward: 300,
+      dropChance: 0.8,
+      isUnlocked: false,
+      difficultyMultiplier: 2.2,
+      damagePerSecond: 12,
+      isRaid: true,
+      keyCost: 1
     },
     {
       id: 'd3',
       name: 'Orc Fortress',
-      requiredPower: 2500,
+      requiredPower: 4500,
       duration: 60,
       goldReward: 500,
       xpReward: 250,
-      dropChance: 0.2,
+      dropChance: 0.35,
       isUnlocked: false,
-      difficultyMultiplier: 2.5
+      difficultyMultiplier: 2.5,
+      damagePerSecond: 10,
+      isRaid: false,
+      keyCost: 0
     },
     {
       id: 'd4',
       name: 'Dragon Lair',
-      requiredPower: 15000,
+      requiredPower: 25000,
       duration: 180,
       goldReward: 2500,
       xpReward: 1200,
-      dropChance: 0.3,
+      dropChance: 0.5,
       isUnlocked: false,
-      difficultyMultiplier: 6
+      difficultyMultiplier: 6,
+      damagePerSecond: 22,
+      isRaid: false,
+      keyCost: 0
+    },
+    {
+      id: 'd_raid2',
+      name: 'Volcanic Caldera (Raid)',
+      requiredPower: 60000,
+      duration: 300,
+      goldReward: 10000,
+      xpReward: 5000,
+      dropChance: 1.0,
+      isUnlocked: false,
+      difficultyMultiplier: 8.5,
+      damagePerSecond: 45,
+      isRaid: true,
+      keyCost: 2
     },
     {
       id: 'd5',
       name: 'Abyssal Gate',
-      requiredPower: 100000,
+      requiredPower: 150000,
       duration: 600,
       goldReward: 15000,
       xpReward: 7500,
-      dropChance: 0.5,
+      dropChance: 0.6,
       isUnlocked: false,
-      difficultyMultiplier: 15
+      difficultyMultiplier: 15,
+      damagePerSecond: 60,
+      isRaid: false,
+      keyCost: 0
     }
   ],
   upgrades: [
@@ -176,6 +237,53 @@ export const INITIAL_GAME_STATE: GameState = {
       cost: 500,
       costMultiplier: 2.8,
       bonusPerLevel: 0.1
+    }
+  ],
+  relics: [
+    {
+      id: 'r1',
+      name: 'Sword of Destiny',
+      description: 'Increases hero damage by 15% per level.',
+      level: 0,
+      cost: 1,
+      bonusPerLevel: 0.15,
+      type: 'DAMAGE'
+    },
+    {
+      id: 'r2',
+      name: 'Golden Chalice',
+      description: 'Increases gold gain by 20% per level.',
+      level: 0,
+      cost: 1,
+      bonusPerLevel: 0.20,
+      type: 'GOLD'
+    },
+    {
+      id: 'r3',
+      name: 'Timeglass of Aeons',
+      description: 'Reduces dungeon run duration by 10% per level.',
+      level: 0,
+      cost: 2,
+      bonusPerLevel: 0.10,
+      type: 'SPEED'
+    },
+    {
+      id: 'r4',
+      name: 'Amulet of Vitality',
+      description: 'Increases hero max HP by 25% per level.',
+      level: 0,
+      cost: 1,
+      bonusPerLevel: 0.25,
+      type: 'HP'
+    },
+    {
+      id: 'r5',
+      name: 'Chronos Gear',
+      description: 'Reduces Key regen time by 30 seconds per level.',
+      level: 0,
+      cost: 3,
+      bonusPerLevel: 30,
+      type: 'KEY_REGEN'
     }
   ],
   achievements: [
@@ -226,6 +334,7 @@ export const INITIAL_GAME_STATE: GameState = {
     }
   ],
   inventory: [],
+  lastKeyRegenTime: Date.now(),
   stats: {
     totalGoldEarned: 100,
     totalDungeonsCompleted: 0,
@@ -238,9 +347,11 @@ export const INITIAL_GAME_STATE: GameState = {
 
 export const GAME_CONSTANTS = {
   SAVE_KEY: 'IDLE_DUNGEON_MANAGER_SAVE',
-  SAVE_VERSION: '1.3.0',
+  SAVE_VERSION: '1.4.0',
   TICK_RATE: 100, // ms
   OFFLINE_CAP_HOURS: 12,
   XP_PER_LEVEL_BASE: 200,
-  XP_LEVEL_EXPONENT: 2.2
+  XP_LEVEL_EXPONENT: 2.2,
+  KEY_REGEN_TIME_BASE: 300, // 5 minutes in seconds (300 seconds)
+  MAX_KEYS_DEFAULT: 10
 };

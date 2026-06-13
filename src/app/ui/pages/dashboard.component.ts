@@ -2,13 +2,14 @@ import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 import { GameEngine } from '../../engine/game-engine';
+import { Hero } from '../../core/interfaces/game-state.interface';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
+    <div class="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-20">
       <!-- Welcome Header -->
       <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -80,15 +81,15 @@ import { GameEngine } from '../../engine/game-engine';
         <!-- Active Missions -->
         <div class="lg:col-span-2 space-y-6">
           <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-bold text-white tracking-tight">Active Hero Missions</h3>
+            <h3 class="text-2xl font-black text-white tracking-tight">Active Hero Missions</h3>
             <button class="btn btn-ghost btn-sm text-primary font-bold">Manage All</button>
           </div>
           
           <div class="grid grid-cols-1 gap-4">
             @for (hero of heroes(); track hero.id) {
-              @if (hero.isUnlocked && hero.currentDungeonId) {
+              @if (hero.isUnlocked && hero.currentDungeonId && !hero.isResting) {
                 <div class="premium-card !p-5 flex items-center gap-6 group hover:scale-[1.01]">
-                  <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 shadow-inner border border-white/5 group-hover:border-primary/30 transition-colors">
+                  <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-800 shadow-inner border border-white/5 group-hover:border-primary/30 transition-colors shrink-0">
                     <img [src]="getHeroImage(hero.heroClass)" class="w-full h-full object-cover" [alt]="hero.name">
                   </div>
                   <div class="flex-1 min-w-0">
@@ -105,11 +106,34 @@ import { GameEngine } from '../../engine/game-engine';
                         </span>
                       </div>
                     </div>
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-slate-800/50 rounded-full h-2.5 overflow-hidden border border-white/5">
-                      <div class="bg-gradient-to-r from-primary to-secondary h-full transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.3)]" 
-                           [style.width.%]="getDungeonProgressPercent(hero)"></div>
+                    
+                    <!-- Progress Bar & HP -->
+                    <div class="space-y-3">
+                      <!-- Mission Progress -->
+                      <div>
+                        <div class="flex justify-between text-[9px] font-black text-slate-500 mb-0.5">
+                          <span>MISSION PROGRESS</span>
+                          <span>{{ getDungeonProgressPercent(hero) | number:'1.0-0' }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-800/50 rounded-full h-2 overflow-hidden border border-white/5">
+                          <div class="bg-gradient-to-r from-primary to-secondary h-full transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.3)]" 
+                               [style.width.%]="getDungeonProgressPercent(hero)"></div>
+                        </div>
+                      </div>
+
+                      <!-- HP Status -->
+                      <div>
+                        <div class="flex justify-between text-[9px] font-black text-slate-500 mb-0.5">
+                          <span>HERO HP</span>
+                          <span>{{ (hero.currentHp || 0) | number:'1.0-0' }} / {{ getHeroMaxHp(hero) | number:'1.0-0' }}</span>
+                        </div>
+                        <div class="w-full bg-slate-800/50 rounded-full h-2 overflow-hidden border border-white/5">
+                          <div [class]="getHpBarClass(hero)"
+                               [style.width.%]="getHpPercent(hero)"></div>
+                        </div>
+                      </div>
                     </div>
+
                   </div>
                 </div>
               }
@@ -122,6 +146,33 @@ import { GameEngine } from '../../engine/game-engine';
               </div>
             }
           </div>
+
+          <!-- Resting Guild Members -->
+          @if (hasRestingHeroes()) {
+            <div class="space-y-4 pt-6 border-t border-white/5">
+              <h3 class="text-xl font-black text-white tracking-tight">Resting Guild Members</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (hero of heroes(); track hero.id) {
+                  @if (hero.isUnlocked && hero.isResting) {
+                    <div class="premium-card !p-4 flex items-center gap-4 border-amber-500/10">
+                      <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-800 border border-white/5 grayscale shrink-0">
+                        <img [src]="getHeroImage(hero.heroClass)" class="w-full h-full object-cover">
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-1">
+                          <span class="font-bold text-slate-200 truncate">{{ hero.name }}</span>
+                          <span class="text-[9px] font-black text-amber-500 uppercase">💤 Resting</span>
+                        </div>
+                        <div class="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden border border-white/5">
+                          <div class="bg-amber-500 h-full transition-all duration-300 animate-pulse" [style.width.%]="getHpPercent(hero)"></div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Sidebar Info -->
@@ -150,7 +201,7 @@ import { GameEngine } from '../../engine/game-engine';
               <span class="text-accent">💡</span>
               <h4 class="text-xs font-black text-accent uppercase tracking-widest">Pro Tip</h4>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">Upgrade your <span class="text-white font-bold">Sharp Blades</span> to clear dungeons faster through raw power!</p>
+            <p class="text-xs text-slate-400 leading-relaxed">Deploy a <span class="text-white font-bold">Cleric</span> (like Elena) and a <span class="text-white font-bold">Tank</span> in difficult dungeons to keep your heroes alive!</p>
           </div>
         </div>
       </div>
@@ -171,7 +222,11 @@ export class DashboardComponent {
   }
 
   public activeHeroesCount() {
-    return this.heroes().filter(h => h.isUnlocked && h.currentDungeonId).length;
+    return this.heroes().filter(h => h.isUnlocked && h.currentDungeonId && !h.isResting).length;
+  }
+
+  public hasRestingHeroes(): boolean {
+    return this.heroes().some(h => h.isUnlocked && h.isResting);
   }
 
   public globalGps() {
@@ -184,12 +239,30 @@ export class DashboardComponent {
       case 'Mage': return 'assets/heroes/mage.png';
       case 'Rogue': return 'assets/heroes/rogue.png';
       case 'Cleric': return 'assets/heroes/cleric.png';
+      case 'Paladin': return 'assets/heroes/paladin.png';
+      case 'Archer': return 'assets/heroes/archer.png';
       default: return 'assets/heroes/warrior.png';
     }
   }
 
   public getDungeonName(id: string): string {
     return this.dungeons().find(d => d.id === id)?.name || 'Unknown Dungeon';
+  }
+
+  public getHeroMaxHp(hero: Hero): number {
+    return GameEngine.getHeroMaxHp(this.gameState(), hero);
+  }
+
+  public getHpPercent(hero: Hero): number {
+    const max = this.getHeroMaxHp(hero);
+    return Math.min(100, ((hero.currentHp || 0) / max) * 100);
+  }
+
+  public getHpBarClass(hero: Hero): string {
+    const percent = this.getHpPercent(hero);
+    if (percent < 30) return 'bg-red-500 h-full transition-all duration-300';
+    if (percent < 70) return 'bg-yellow-500 h-full transition-all duration-300';
+    return 'bg-green-500 h-full transition-all duration-300';
   }
 
   public getDungeonProgressPercent(hero: any): number {

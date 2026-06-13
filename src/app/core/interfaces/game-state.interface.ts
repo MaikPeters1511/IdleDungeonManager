@@ -30,6 +30,7 @@ export interface Equipment {
   bonusDamage?: number;
   bonusGold?: number;
   bonusXp?: number;
+  bonusHp?: number;
 }
 
 export interface Hero {
@@ -52,6 +53,9 @@ export interface Hero {
     armor?: Equipment;
     accessory?: Equipment;
   };
+  currentHp?: number;
+  maxHp?: number;
+  isResting?: boolean;
 }
 
 export interface Dungeon {
@@ -64,6 +68,9 @@ export interface Dungeon {
   dropChance: number; // 0-1
   isUnlocked: boolean;
   difficultyMultiplier: number;
+  damagePerSecond: number; // damage dealt to heroes per second
+  isRaid?: boolean; // whether it requires keys
+  keyCost?: number; // key cost to run (if isRaid is true)
 }
 
 export enum UpgradeType {
@@ -83,6 +90,16 @@ export interface Upgrade {
   cost: number;
   costMultiplier: number;
   bonusPerLevel: number;
+}
+
+export interface Relic {
+  id: string;
+  name: string;
+  description: string;
+  level: number;
+  cost: number; // in essence
+  bonusPerLevel: number;
+  type: 'DAMAGE' | 'GOLD' | 'SPEED' | 'HP' | 'KEY_REGEN';
 }
 
 export interface Achievement {
@@ -122,6 +139,8 @@ export interface GameState {
   achievements: Achievement[];
   quests: Quest[];
   inventory: Equipment[];
+  relics: Relic[];
+  lastKeyRegenTime?: number;
   stats: {
     totalGoldEarned: number;
     totalDungeonsCompleted: number;

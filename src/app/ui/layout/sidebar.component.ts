@@ -42,6 +42,24 @@ import { CommonModule } from '@angular/common';
             {{ resources().gems | number }}
           </span>
         </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-slate-400">
+            <span class="text-lg">🔑</span>
+            <span class="text-xs font-bold uppercase tracking-wider">Keys</span>
+          </div>
+          <span class="text-lg font-black text-amber-500 tabular-nums">
+            {{ resources().dungeonKeys }}/10
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-slate-400">
+            <span class="text-lg">🌀</span>
+            <span class="text-xs font-bold uppercase tracking-wider">Essence</span>
+          </div>
+          <span class="text-lg font-black text-purple-400 tabular-nums">
+            {{ resources().essence | number }}
+          </span>
+        </div>
       </div>
 
       <!-- Navigation -->

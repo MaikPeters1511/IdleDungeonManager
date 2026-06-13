@@ -52,15 +52,43 @@ export class SaveService {
       state.quests = INITIAL_GAME_STATE.quests.map(q => ({ ...q }));
     }
 
-    // Ensure all heroes are present and update their recruitment costs for existing saves
+    // Add relics, inventory, and keys if they don't exist
+    if (!state.relics || state.relics.length === 0) {
+      state.relics = INITIAL_GAME_STATE.relics.map(r => ({ ...r }));
+    }
+    if (state.lastKeyRegenTime === undefined) {
+      state.lastKeyRegenTime = Date.now();
+    }
+    if (!state.inventory) {
+      state.inventory = [];
+    }
+
+    // Ensure all heroes are present and update their recruitment costs and HP for existing saves
     INITIAL_GAME_STATE.heroes.forEach(initialHero => {
       const existingHero = state.heroes.find((h: any) => h.id === initialHero.id);
       if (existingHero) {
         // Update recruitment cost to match new balance
         existingHero.upgradeCost = initialHero.upgradeCost;
+        if (existingHero.maxHp === undefined) {
+          existingHero.maxHp = initialHero.maxHp;
+          existingHero.currentHp = initialHero.maxHp;
+          existingHero.isResting = false;
+        }
       } else {
         // Add new hero if it doesn't exist
         state.heroes.push({ ...initialHero });
+      }
+    });
+
+    // Merge dungeons (e.g. adding raids if they don't exist)
+    INITIAL_GAME_STATE.dungeons.forEach(initialDungeon => {
+      const existingDungeon = state.dungeons.find((d: any) => d.id === initialDungeon.id);
+      if (existingDungeon) {
+        existingDungeon.damagePerSecond = initialDungeon.damagePerSecond;
+        existingDungeon.isRaid = initialDungeon.isRaid;
+        existingDungeon.keyCost = initialDungeon.keyCost;
+      } else {
+        state.dungeons.push({ ...initialDungeon });
       }
     });
 
