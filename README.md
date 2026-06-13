@@ -3,7 +3,7 @@
 
   # 🏰 Idle Dungeon Manager
 
-  **Verwalte deine Helden, erobere dunkle Dungeons und sammle legendären Reichtum an!**
+  **Verwalte deine Helden, rüste sie mit legendärer Beute aus, heile sie in gefährlichen Kämpfen und steige zu göttlicher Macht auf!**
 
   [![Angular](https://img.shields.io/badge/Angular-21+-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0+-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -17,21 +17,26 @@
 
 ## ✨ Hauptmerkmale
 
-*   **🛡️ Helden-Management**: Rekrutiere und verbessere einzigartige Helden wie **Alaric (Krieger)**, **Zephyr (Magier)** und **Shadow (Schurke)**.
-*   **⚔️ Dungeon-Expeditionen**: Entsende deine Helden an gefährliche Orte wie die **Goblin-Höhle**, die **Heimgesuchte Krypta** und den legendären **Drachenhort**.
-*   **💰 Dynamische Wirtschaft**: Verdiene Gold, Edelsteine und Essenz, um dein Imperium zu finanzieren.
-*   **📈 Strategische Upgrades**: Investiere in permanente Verbesserungen wie *Gierige Goblins* für mehr Gold oder *Flinke Stiefel* für schnellere Durchläufe.
-*   **🏆 Erfolge**: Schalte Belohnungen frei, während du neue Meilensteine in deiner Karriere als Dungeon-Manager erreichst.
-*   **💤 Offline-Fortschritt**: Deine Helden kämpfen weiter und verdienen Gold, auch wenn du nicht online bist!
+*   **🛡️ Helden-Gilde**: Rekrutiere und trainiere 6 einzigartige Heldenklassen – vom zähen **Krieger** und schlagkräftigen **Magier** bis hin zur unterstützenden **Klerikerin** und dem heiligen **Paladin**.
+*   **💔 Dynamisches Kampfsystem (HP & Klassen-Synergien)**: Helden verlieren in Dungeons Lebenspunkte. Kombiniere deine Truppe weise:
+    *   *Tanks (Krieger & Paladine)* fangen Schaden ab und reduzieren ihn für Gruppenmitglieder um 50%.
+    *   *Heiler (Kleriker)* heilen ihre Gefährten mitten im Kampf.
+    *   Besiegte Helden ruhen sich im Gildenhaus aus (`Resting`), um ihre HP zu regenerieren.
+*   **⚔️ Ausrüstung & Beutesystem**: Dungeons droppen zufällige Waffen, Rüstungen und Accessoires mit verschiedenen Seltenheitsgraden (*Common, Rare, Epic, Legendary*). Statte deine Helden aus, um ihre Angriffskraft, max. HP oder Gold-/XP-Multiplikatoren massiv zu steigern.
+*   **🔑 Boss-Raids & Schlüssel**: Nutze regenerierende *Dungeon-Keys*, um epische Raids wie die *Katakomben der Untoten* oder die *Vulkanische Caldera* zu betreten. Es winken garantierte epische Beute, Edelsteine und kostbare Essenzen.
+*   **🌀 Reinkarnation & Relikte (Prestige)**: Setze deine Gilde im Austausch gegen *Essenz* zurück. Kaufe und verbessere damit permanente göttliche Relikte (z. B. *Schwert des Schicksals* für Schaden oder *Chronos Zahnrad* für schnellere Schlüssel-Regeneration).
+*   **📈 Strategische Upgrades**: Investiere dein Gold in permanente Gildenverbesserungen wie *Gierige Goblins* oder *Flinke Stiefel*.
+*   **🏆 Trophäenraum**: Schalte Errungenschaften frei, um wertvolle Bonus-Ressourcen zu erhalten.
+*   **💤 Offline-Fortschritt**: Deine Helden kämpfen weiter und verdienen Gold, auch wenn das Spiel geschlossen ist (bis zu 12 Stunden Offline-Cap).
 
 ## 🛠️ Technologien
 
 Dieses Projekt wurde mit modernen, leistungsstarken Webtechnologien entwickelt:
 
-*   **Framework**: [Angular 21](https://angular.io/) (Signal-basierte Reaktivität)
-*   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
+*   **Framework**: [Angular 21](https://angular.io/) (Signal-basierte Reaktivität für Echtzeit-Updates)
+*   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/) (Premium Glassmorphism Dark Mode)
 *   **Icons**: [Lucide Angular](https://lucide.dev/)
-*   **Speicherung**: LocalStorage mit Status-Versionierung
+*   **Speicherung**: LocalStorage mit Zustands-Versionierung (1.4.0) und Offline-Fortschritt-Berechnung
 *   **Tooling**: Vite-gestütztes Build-System
 
 ## 🚀 Erste Schritte
@@ -39,7 +44,7 @@ Dieses Projekt wurde mit modernen, leistungsstarken Webtechnologien entwickelt:
 ### Voraussetzungen
 
 *   [Node.js](https://nodejs.org/) (v18 oder höher)
-*   npm (v9 oder higher)
+*   npm (v9 oder höher)
 
 ### Installation
 
@@ -60,12 +65,12 @@ Dieses Projekt wurde mit modernen, leistungsstarken Webtechnologien entwickelt:
 
 4. Öffne deinen Browser und gehe zu `http://localhost:4200`
 
-## 🎮 Gameplay
+## 🎮 Gameplay & Strategie-Tipps
 
-1.  **Helden freischalten**: Beginne mit Alaric und schalte mächtigere Helden frei, sobald du genug Gold hast.
-2.  **Dungeons zuweisen**: Wähle einen Helden und einen passenden Dungeon basierend auf dessen Stärke aus.
-3.  **Verbessern**: Nutze deine Einnahmen, um Helden zu leveln oder globale Upgrades im Shop zu kaufen.
-4.  **Erfolge abschließen**: Schau in das Quest-Log für zusätzliche Belohnungen.
+1.  **Synergien nutzen**: Schicke einen Tank (Warrior/Paladin) und einen Heiler (Cleric) zusammen in schwierige Dungeons. Sie halten sich gegenseitig am Leben und verhindern, dass dein Fortschritt durch einen K.O. unterbrochen wird.
+2.  **Rüstungskammer pflegen**: Kontrolliere regelmäßig deine Beute in den Ausrüstungs-Slots deiner Helden. Rüste Schadensverursacher mit starken Waffen aus, Tanks mit HP-Rüstung und Supporter mit Gold-Accessoires.
+3.  **Raids timen**: Nutze deine Schlüssel effizient. Lass deine stärksten Helden Raids laufen, um seltene Ausrüstung und die für den Aufstieg benötigten Essenzen zu ergattern.
+4.  **Der Aufstiegs-Zyklus**: Wenn deine Helden an ihre Grenzen stoßen, nutze die Reinkarnation im Upgrades-Tab. Die permanenten Relikte machen deinen nächsten Durchlauf um ein Vielfaches schneller und mächtiger!
 
 ---
 
