@@ -34,10 +34,41 @@
 Dieses Projekt wurde mit modernen, leistungsstarken Webtechnologien entwickelt:
 
 *   **Framework**: [Angular 21](https://angular.io/) (Signal-basierte Reaktivität für Echtzeit-Updates)
-*   **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/) (Premium Glassmorphism Dark Mode)
+*   **Styling**: [Tailwind CSS 3.4](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
 *   **Icons**: [Lucide Angular](https://lucide.dev/)
-*   **Speicherung**: LocalStorage mit Zustands-Versionierung (1.4.0) und Offline-Fortschritt-Berechnung
-*   **Tooling**: Vite-gestütztes Build-System
+*   **Tests**: [Vitest](https://vitest.dev/)
+*   **Speicherung**: LocalStorage mit Zustands-Versionierung und Offline-Fortschritt-Berechnung
+*   **Tooling**: Angular CLI & Vite
+
+## 📋 Projektstruktur
+
+```text
+/
+├── src/            # Quellcode der Anwendung
+├── public/         # Statische Assets
+├── dist/           # Build-Output (nach Build)
+├── angular.json    # Angular Projektkonfiguration
+├── package.json    # Abhängigkeiten und Skripte
+├── tailwind.config.js # Tailwind CSS Konfiguration
+├── tsconfig.*      # TypeScript Konfigurationen
+└── ...
+```
+
+## ⚙️ Skripte
+
+Folgende Skripte sind über `npm run <skript>` verfügbar:
+
+- `start`: Startet den Entwicklungsserver (`ng serve`).
+- `build`: Erstellt ein Produktions-Build (`ng build`).
+- `watch`: Startet den Build-Prozess im Watch-Modus.
+- `test`: Führt Tests mit Vitest aus (`ng test`).
+
+## 🌍 Umgebungsvariablen
+<!-- TODO: Dokumentation der benötigten Umgebungsvariablen hinzufügen, falls vorhanden. -->
+
+## 🧪 Tests
+Dieses Projekt verwendet [Vitest](https://vitest.dev/) für Unit-Tests.
+- `npm test`: Führt die Testsuite aus.
 
 ## 🚀 Erste Schritte
 
@@ -71,6 +102,9 @@ Dieses Projekt wurde mit modernen, leistungsstarken Webtechnologien entwickelt:
 2.  **Rüstungskammer pflegen**: Kontrolliere regelmäßig deine Beute in den Ausrüstungs-Slots deiner Helden. Rüste Schadensverursacher mit starken Waffen aus, Tanks mit HP-Rüstung und Supporter mit Gold-Accessoires.
 3.  **Raids timen**: Nutze deine Schlüssel effizient. Lass deine stärksten Helden Raids laufen, um seltene Ausrüstung und die für den Aufstieg benötigten Essenzen zu ergattern.
 4.  **Der Aufstiegs-Zyklus**: Wenn deine Helden an ihre Grenzen stoßen, nutze die Reinkarnation im Upgrades-Tab. Die permanenten Relikte machen deinen nächsten Durchlauf um ein Vielfaches schneller und mächtiger!
+
+## 📄 Lizenz
+Dieses Projekt steht unter der MIT-Lizenz. Siehe `LICENSE` Datei.
 
 ---
 
