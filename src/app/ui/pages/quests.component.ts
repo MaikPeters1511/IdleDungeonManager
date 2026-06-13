@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-quests',
@@ -10,8 +11,8 @@ import { GameService } from '../../services/game.service';
     <div class="space-y-10 animate-in slide-in-from-bottom-6 duration-700">
       <header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 class="text-4xl font-black text-white tracking-tight">Guild Quests</h2>
-          <p class="text-slate-400 mt-2 text-lg">Complete special tasks to earn legendary rewards.</p>
+          <h2 class="text-4xl font-black text-white tracking-tight">{{ t('Guild Quests') }}</h2>
+          <p class="text-slate-400 mt-2 text-lg">{{ t('Complete special tasks to earn legendary rewards.') }}</p>
         </div>
       </header>
 
@@ -28,7 +29,7 @@ import { GameService } from '../../services/game.service';
               <!-- Completion Badge -->
               @if (quest.isCompleted && !quest.isClaimed) {
                 <div class="absolute top-4 right-4 bg-green-500 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl animate-bounce">
-                  Ready to Claim
+                  {{ t('Ready to Claim') }}
                 </div>
               }
             </div>
@@ -40,8 +41,8 @@ import { GameService } from '../../services/game.service';
                     {{ getQuestIcon(quest.type) }}
                   </div>
                   <div>
-                    <h3 class="text-2xl font-black text-white group-hover:text-primary transition-colors">{{ quest.title }}</h3>
-                    <p class="text-slate-400 font-medium">{{ quest.description }}</p>
+                    <h3 class="text-2xl font-black text-white group-hover:text-primary transition-colors">{{ t(quest.title) }}</h3>
+                    <p class="text-slate-400 font-medium">{{ t(quest.description) }}</p>
                   </div>
                 </div>
               </div>
@@ -49,7 +50,7 @@ import { GameService } from '../../services/game.service';
               <!-- Progress Bar -->
               <div class="space-y-3">
                 <div class="flex justify-between text-xs font-black uppercase tracking-[0.2em]">
-                  <span class="text-slate-500">Quest Progress</span>
+                  <span class="text-slate-500">{{ t('Quest Progress') }}</span>
                   <span class="text-white tabular-nums">{{ quest.currentValue | number }} / {{ quest.targetValue | number }}</span>
                 </div>
                 <div class="w-full bg-slate-800/50 h-3 rounded-full overflow-hidden border border-white/5 p-0.5">
@@ -62,7 +63,7 @@ import { GameService } from '../../services/game.service';
               <!-- Reward Area -->
               <div class="mt-4 pt-6 border-t border-white/5 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                  <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Bounty:</span>
+                  <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">{{ t('Bounty:') }}</span>
                   <div class="flex gap-4">
                     @if (quest.reward.gold) {
                       <div class="flex items-center gap-2">
@@ -82,16 +83,16 @@ import { GameService } from '../../services/game.service';
                 @if (quest.isCompleted && !quest.isClaimed) {
                   <button (click)="claim(quest.id)" 
                           class="btn btn-primary btn-lg rounded-2xl px-10 shadow-xl shadow-primary/20 hover:scale-105 transition-transform active:scale-95">
-                    Claim Reward
+                    {{ t('Claim Reward') }}
                   </button>
                 } @else if (quest.isClaimed) {
                   <div class="flex items-center gap-2 text-slate-500 font-bold">
                     <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xl">✓</div>
-                    <span>COLLECTED</span>
+                    <span>{{ t('COLLECTED') }}</span>
                   </div>
                 } @else {
                    <div class="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] border border-white/5 px-4 py-2 rounded-xl">
-                     In Progress
+                     {{ t('In Progress') }}
                    </div>
                 }
               </div>
@@ -104,10 +105,15 @@ import { GameService } from '../../services/game.service';
 })
 export class QuestsComponent {
   private readonly gameService = inject(GameService);
+  public readonly trans = inject(TranslationService);
   public readonly quests = this.gameService.quests;
 
   public getProgressPercent(quest: any): number {
     return Math.min((quest.currentValue / quest.targetValue) * 100, 100);
+  }
+
+  public t(key: string): string {
+    return this.trans.t(key);
   }
 
   public getQuestIcon(type: string): string {

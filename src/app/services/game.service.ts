@@ -23,6 +23,9 @@ export class GameService {
   public readonly quests = computed(() => this.state().quests || []);
   public readonly relics = computed(() => this.state().relics || []);
   public readonly inventory = computed(() => this.state().inventory || []);
+  public readonly activePotions = computed(() => this.state().activePotions || []);
+  public readonly scrapMetal = computed(() => this.state().resources.scrapMetal || 0);
+  public readonly language = computed(() => this.state().language || 'de');
 
   private lastTickTime = Date.now();
   private gameLoopInterval: any;
@@ -72,6 +75,14 @@ export class GameService {
   public resetGame(): void {
     this.saveService.clear();
     window.location.reload();
+  }
+
+  public changeLanguage(lang: 'de' | 'en'): void {
+    this._state.update(state => ({
+      ...state,
+      language: lang
+    }));
+    this.save();
   }
 
   public manualClick(): void {
@@ -237,7 +248,8 @@ export class GameService {
           gems: 0,
           xp: 0,
           dungeonKeys: 5,
-          essence: state.resources.essence + earnedEssence
+          essence: state.resources.essence + earnedEssence,
+          scrapMetal: 0
         },
         upgrades: state.upgrades.map(u => ({ ...u, level: 0 })),
         dungeons: state.dungeons.map(d => ({
@@ -355,6 +367,215 @@ export class GameService {
         ...state,
         inventory: [...state.inventory, item],
         heroes: state.heroes.map(h => h.id === heroId ? updatedHero : h)
+      };
+    });
+  }
+
+  public brewPotion(type: 'HASTE' | 'MIDAS' | 'FINDER'): void {
+    this._state.update(state => {
+      const costs = { HASTE: 15, MIDAS: 20, FINDER: 25 };
+      const cost = costs[type];
+      if (state.resources.gems < cost) return state;
+
+      const names = {
+        HASTE: 'Elixir of Haste',
+        MIDAS: 'Midas Elixir',
+        FINDER: 'Loot Finder Potion'
+      };
+
+      const newPotion = {
+        id: 'pot_' + Math.random().toString(36).substr(2, 9),
+        name: names[type],
+        type,
+        duration: 300, // 5 minutes in seconds
+        multiplier: type === 'HASTE' ? 1.5 : 2.0
+      };
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          gems: state.resources.gems - cost
+        },
+        activePotions: [...(state.activePotions || []), newPotion]
+      };
+    });
+  }
+
+  public useHealingPotion(heroId: string): void {
+    this._state.update(state => {
+      if (state.resources.gems < 5) return state;
+      const hero = state.heroes.find(h => h.id === heroId);
+      if (!hero) return state;
+
+      const maxHp = GameEngine.getHeroMaxHp(state, hero);
+      const updatedHero = {
+        ...hero,
+        currentHp: maxHp,
+        isResting: false
+      };
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          gems: state.resources.gems - 5
+        },
+        heroes: state.heroes.map(h => h.id === heroId ? updatedHero : h)
+      };
+    });
+  }
+
+  public scrapItem(itemId: string): void {
+    this._state.update(state => {
+      const item = state.inventory.find(i => i.id === itemId);
+      if (!item) return state;
+
+      const scrapMap = {
+        Common: 10,
+        Rare: 25,
+        Epic: 75,
+        Legendary: 250
+      };
+      const metalEarned = scrapMap[item.rarity as 'Common' | 'Rare' | 'Epic' | 'Legendary'] || 10;
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          scrapMetal: (state.resources.scrapMetal || 0) + metalEarned
+        },
+        inventory: state.inventory.filter(i => i.id !== itemId)
+      };
+    });
+  }
+
+  public upgradeItem(itemId: string): void {
+    this._state.update(state => {
+      let targetItem: Equipment | undefined;
+      let isEquipped = false;
+      let equippedHeroId = '';
+      let equippedSlot = '';
+
+      targetItem = state.inventory.find(i => i.id === itemId);
+      if (!targetItem) {
+        state.heroes.forEach(h => {
+          if (h.equipment) {
+            ['weapon', 'armor', 'accessory'].forEach(slot => {
+              const item = h.equipment?.[slot as 'weapon' | 'armor' | 'accessory'];
+              if (item && item.id === itemId) {
+                targetItem = item;
+                isEquipped = true;
+                equippedHeroId = h.id;
+                equippedSlot = slot;
+              }
+            });
+          }
+        });
+      }
+
+      if (!targetItem) return state;
+
+      const rarity = targetItem.rarity as 'Common' | 'Rare' | 'Epic' | 'Legendary';
+      const level = targetItem.level || 1;
+
+      const baseCosts = {
+        Common: { gold: 100, scrap: 15 },
+        Rare: { gold: 250, scrap: 30 },
+        Epic: { gold: 1000, scrap: 100 },
+        Legendary: { gold: 5000, scrap: 400 }
+      };
+
+      const cost = baseCosts[rarity] || { gold: 100, scrap: 15 };
+      const goldCost = Math.floor(cost.gold * Math.pow(1.5, level - 1));
+      const scrapCost = Math.floor(cost.scrap * Math.pow(1.4, level - 1));
+
+      if (state.resources.gold < goldCost || (state.resources.scrapMetal || 0) < scrapCost) {
+        return state;
+      }
+
+      const upgradedItem: Equipment = {
+        ...targetItem,
+        level: level + 1
+      };
+
+      let newInventory = [...state.inventory];
+      let newHeroes = state.heroes.map(h => ({ ...h }));
+
+      if (isEquipped) {
+        newHeroes = newHeroes.map(h => {
+          if (h.id === equippedHeroId && h.equipment) {
+            const updatedEquip = { ...h.equipment, [equippedSlot]: upgradedItem };
+            const updatedHero = { ...h, equipment: updatedEquip };
+            
+            if (equippedSlot === 'armor') {
+              const oldMax = GameEngine.getHeroMaxHp(state, h);
+              const newMax = GameEngine.getHeroMaxHp({ ...state, heroes: newHeroes }, updatedHero);
+              updatedHero.currentHp = (updatedHero.currentHp || 0) + (newMax - oldMax);
+            }
+            return updatedHero;
+          }
+          return h;
+        });
+      } else {
+        newInventory = newInventory.map(i => i.id === itemId ? upgradedItem : i);
+      }
+
+      return {
+        ...state,
+        resources: {
+          ...state.resources,
+          gold: state.resources.gold - goldCost,
+          scrapMetal: state.resources.scrapMetal - scrapCost
+        },
+        inventory: newInventory,
+        heroes: newHeroes
+      };
+    });
+  }
+
+  public combineItems(itemIds: string[]): void {
+    if (itemIds.length !== 3) return;
+
+    this._state.update(state => {
+      const items = state.inventory.filter(i => itemIds.includes(i.id));
+      if (items.length !== 3) return state;
+
+      const rarity = items[0].rarity;
+      if (rarity === 'Legendary') return state;
+      if (items.some(i => i.rarity !== rarity)) return state;
+
+      const nextRarityMap = {
+        Common: 'Rare',
+        Rare: 'Epic',
+        Epic: 'Legendary'
+      };
+      const nextRarity = nextRarityMap[rarity as 'Common' | 'Rare' | 'Epic'] as 'Rare' | 'Epic' | 'Legendary';
+
+      const dummyDungeon = state.dungeons[0];
+      const newItem = GameEngine.generateLoot(dummyDungeon);
+      newItem.rarity = nextRarity as any;
+      
+      const rarityMultiplier = nextRarity === 'Legendary' ? 8 : nextRarity === 'Epic' ? 4 : 2;
+      const levelScale = 2.0;
+
+      if (newItem.slot === 'Weapon') {
+        newItem.bonusDamage = Math.floor(levelScale * 4 * rarityMultiplier);
+      } else if (newItem.slot === 'Armor') {
+        newItem.bonusHp = Math.floor(levelScale * 25 * rarityMultiplier);
+      } else {
+        if (newItem.bonusGold) newItem.bonusGold = 0.05 * rarityMultiplier;
+        else newItem.bonusXp = 0.05 * rarityMultiplier;
+      }
+      newItem.level = 1;
+      newItem.name = 'Forged ' + newItem.name;
+
+      const newInventory = state.inventory.filter(i => !itemIds.includes(i.id));
+      newInventory.push(newItem);
+
+      return {
+        ...state,
+        inventory: newInventory
       };
     });
   }

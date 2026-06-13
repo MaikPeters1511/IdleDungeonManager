@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 import { GameEngine } from '../../engine/game-engine';
 import { Hero } from '../../core/interfaces/game-state.interface';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,25 +14,25 @@ import { Hero } from '../../core/interfaces/game-state.interface';
       <!-- Welcome Header -->
       <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 class="text-4xl font-black text-white tracking-tight">Guild Headquarters</h2>
-          <p class="text-slate-400 mt-2 text-lg">Your guild is growing stronger every second.</p>
+          <h2 class="text-4xl font-black text-white tracking-tight">{{ t('Guild Headquarters') }}</h2>
+          <p class="text-slate-400 mt-2 text-lg">{{ t('Your guild is growing stronger every second.') }}</p>
         </div>
         <div class="flex items-center gap-4">
           <button (click)="manualClick()" 
                   class="group relative px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-600 rounded-2xl font-black text-white shadow-xl shadow-yellow-500/20 active:scale-95 transition-all overflow-hidden">
             <span class="relative z-10 flex items-center gap-2">
-              <span class="text-2xl group-hover:animate-bounce">💰</span> COLLECT GOLD
+              <span class="text-2xl group-hover:animate-bounce">💰</span> {{ t('COLLECT GOLD') }}
             </span>
             <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
           </button>
-
+ 
           <div class="flex items-center gap-4 px-6 py-4 glass-panel rounded-2xl shadow-2xl border-primary/20">
             <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-2xl animate-pulse">
               ⚡
             </div>
             <div>
-              <p class="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Efficiency Rate</p>
-              <p class="text-xl font-black text-white">100% <span class="text-xs text-slate-500 font-normal">Active</span></p>
+              <p class="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">{{ t('Efficiency Rate') }}</p>
+              <p class="text-xl font-black text-white">100% <span class="text-xs text-slate-500 font-normal">{{ t('Active') }}</span></p>
             </div>
           </div>
         </div>
@@ -41,38 +42,38 @@ import { Hero } from '../../core/interfaces/game-state.interface';
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="premium-card group">
           <div class="flex justify-between items-start mb-4">
-            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Wealth</span>
+            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">{{ t('Total Wealth') }}</span>
             <span class="text-yellow-500 opacity-50 group-hover:opacity-100 transition-opacity">💰</span>
           </div>
           <p class="text-3xl font-black text-white tabular-nums">{{ stats().totalGoldEarned | number:'1.0-0' }}</p>
-          <p class="text-xs text-slate-500 mt-4">Total Gold Collected</p>
+          <p class="text-xs text-slate-500 mt-4">{{ t('Total Gold Collected') }}</p>
         </div>
 
         <div class="premium-card group">
           <div class="flex justify-between items-start mb-4">
-            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">Conquests</span>
+            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">{{ t('Conquests') }}</span>
             <span class="text-primary opacity-50 group-hover:opacity-100 transition-opacity">🏰</span>
           </div>
           <p class="text-3xl font-black text-white tabular-nums">{{ stats().totalDungeonsCompleted | number }}</p>
-          <p class="text-xs text-slate-500 mt-4">Total Dungeons Cleared</p>
+          <p class="text-xs text-slate-500 mt-4">{{ t('Total Dungeons Cleared') }}</p>
         </div>
 
         <div class="premium-card group">
           <div class="flex justify-between items-start mb-4">
-            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">Deployed Squad</span>
+            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">{{ t('Deployed Squad') }}</span>
             <span class="text-secondary opacity-50 group-hover:opacity-100 transition-opacity">⚔️</span>
           </div>
           <p class="text-3xl font-black text-white tabular-nums">{{ activeHeroesCount() }}</p>
-          <p class="text-xs text-slate-500 mt-4">Heroes currently farming</p>
+          <p class="text-xs text-slate-500 mt-4">{{ t('Heroes currently farming') }}</p>
         </div>
 
         <div class="premium-card group">
           <div class="flex justify-between items-start mb-4">
-            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">Revenue Flow</span>
+            <span class="text-slate-500 text-xs font-bold uppercase tracking-widest">{{ t('Revenue Flow') }}</span>
             <span class="text-accent opacity-50 group-hover:opacity-100 transition-opacity">⚡</span>
           </div>
           <p class="text-3xl font-black text-white tabular-nums">{{ globalGps() | number:'1.0-1' }} <span class="text-sm font-normal text-slate-500">/s</span></p>
-          <p class="text-xs text-slate-500 mt-4">Average Gold per Second</p>
+          <p class="text-xs text-slate-500 mt-4">{{ t('Average Gold per Second') }}</p>
         </div>
       </div>
 
@@ -81,8 +82,8 @@ import { Hero } from '../../core/interfaces/game-state.interface';
         <!-- Active Missions -->
         <div class="lg:col-span-2 space-y-6">
           <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-black text-white tracking-tight">Active Hero Missions</h3>
-            <button class="btn btn-ghost btn-sm text-primary font-bold">Manage All</button>
+            <h3 class="text-2xl font-black text-white tracking-tight">{{ t('Active Hero Missions') }}</h3>
+            <button class="btn btn-ghost btn-sm text-primary font-bold">{{ t('Manage All') }}</button>
           </div>
           
           <div class="grid grid-cols-1 gap-4">
@@ -112,7 +113,7 @@ import { Hero } from '../../core/interfaces/game-state.interface';
                       <!-- Mission Progress -->
                       <div>
                         <div class="flex justify-between text-[9px] font-black text-slate-500 mb-0.5">
-                          <span>MISSION PROGRESS</span>
+                          <span>{{ t('MISSION PROGRESS') }}</span>
                           <span>{{ getDungeonProgressPercent(hero) | number:'1.0-0' }}%</span>
                         </div>
                         <div class="w-full bg-slate-800/50 rounded-full h-2 overflow-hidden border border-white/5">
@@ -124,7 +125,7 @@ import { Hero } from '../../core/interfaces/game-state.interface';
                       <!-- HP Status -->
                       <div>
                         <div class="flex justify-between text-[9px] font-black text-slate-500 mb-0.5">
-                          <span>HERO HP</span>
+                          <span>{{ t('HERO HP') }}</span>
                           <span>{{ (hero.currentHp || 0) | number:'1.0-0' }} / {{ getHeroMaxHp(hero) | number:'1.0-0' }}</span>
                         </div>
                         <div class="w-full bg-slate-800/50 rounded-full h-2 overflow-hidden border border-white/5">
@@ -140,9 +141,9 @@ import { Hero } from '../../core/interfaces/game-state.interface';
             } @empty {
               <div class="text-center py-20 premium-card border-dashed border-white/10 flex flex-col items-center">
                 <div class="w-20 h-20 rounded-full bg-slate-800/50 flex items-center justify-center text-4xl mb-6 grayscale opacity-50">⚔️</div>
-                <h4 class="text-xl font-bold text-white mb-2">The Guild is Quiet</h4>
-                <p class="text-slate-500 max-w-sm">No heroes are currently assigned to dungeons. Head over to the Heroes Guild to deploy your warriors.</p>
-                <button routerLink="/heroes" class="btn btn-primary mt-8 rounded-full px-8">Hire Heroes</button>
+                <h4 class="text-xl font-bold text-white mb-2">{{ t('The Guild is Quiet') }}</h4>
+                <p class="text-slate-500 max-w-sm">{{ t('No heroes are currently assigned to dungeons. Head over to the Heroes Guild to deploy your warriors.') }}</p>
+                <button routerLink="/heroes" class="btn btn-primary mt-8 rounded-full px-8">{{ t('Hire Heroes') }}</button>
               </div>
             }
           </div>
@@ -150,7 +151,7 @@ import { Hero } from '../../core/interfaces/game-state.interface';
           <!-- Resting Guild Members -->
           @if (hasRestingHeroes()) {
             <div class="space-y-4 pt-6 border-t border-white/5">
-              <h3 class="text-xl font-black text-white tracking-tight">Resting Guild Members</h3>
+              <h3 class="text-xl font-black text-white tracking-tight">{{ t('Resting Guild Members') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @for (hero of heroes(); track hero.id) {
                   @if (hero.isUnlocked && hero.isResting) {
@@ -161,7 +162,7 @@ import { Hero } from '../../core/interfaces/game-state.interface';
                       <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-center mb-1">
                           <span class="font-bold text-slate-200 truncate">{{ hero.name }}</span>
-                          <span class="text-[9px] font-black text-amber-500 uppercase">💤 Resting</span>
+                          <span class="text-[9px] font-black text-amber-500 uppercase">{{ t('💤 Resting') }}</span>
                         </div>
                         <div class="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden border border-white/5">
                           <div class="bg-amber-500 h-full transition-all duration-300 animate-pulse" [style.width.%]="getHpPercent(hero)"></div>
@@ -178,19 +179,19 @@ import { Hero } from '../../core/interfaces/game-state.interface';
         <!-- Sidebar Info -->
         <div class="space-y-8">
           <div class="premium-card !p-8 bg-gradient-to-br from-primary/10 to-transparent">
-            <h3 class="text-xl font-bold text-white mb-6">Guild Updates</h3>
+            <h3 class="text-xl font-bold text-white mb-6">{{ t('Guild Updates') }}</h3>
             <div class="space-y-6">
               <div class="flex gap-4">
                 <div class="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0 animate-pulse"></div>
-                <p class="text-sm text-slate-400 italic font-medium leading-relaxed">"The Goblin Cave has seen increased activity. Good for business!"</p>
+                <p class="text-sm text-slate-400 italic font-medium leading-relaxed">"{{ t('The Goblin Cave has seen increased activity. Good for business!') }}"</p>
               </div>
               <div class="flex gap-4">
                 <div class="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 shrink-0"></div>
-                <p class="text-sm text-slate-400 italic font-medium leading-relaxed">"Local merchants are looking for dragon scales. Reward is high."</p>
+                <p class="text-sm text-slate-400 italic font-medium leading-relaxed">"{{ t('Local merchants are looking for dragon scales. Reward is high.') }}"</p>
               </div>
               <div class="flex gap-4">
                 <div class="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0"></div>
-                <p class="text-sm text-slate-400 italic font-medium leading-relaxed">"A mysterious traveler mentioned a gate to the Abyss..."</p>
+                <p class="text-sm text-slate-400 italic font-medium leading-relaxed">"{{ t('A mysterious traveler mentioned a gate to the Abyss...') }}"</p>
               </div>
             </div>
           </div>
@@ -199,9 +200,11 @@ import { Hero } from '../../core/interfaces/game-state.interface';
           <div class="p-6 rounded-2xl bg-accent/10 border border-accent/20">
             <div class="flex items-center gap-3 mb-2">
               <span class="text-accent">💡</span>
-              <h4 class="text-xs font-black text-accent uppercase tracking-widest">Pro Tip</h4>
+              <h4 class="text-xs font-black text-accent uppercase tracking-widest">{{ t('Pro Tip') }}</h4>
             </div>
-            <p class="text-xs text-slate-400 leading-relaxed">Deploy a <span class="text-white font-bold">Cleric</span> (like Elena) and a <span class="text-white font-bold">Tank</span> in difficult dungeons to keep your heroes alive!</p>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              {{ t('Deploy a') }} <span class="text-white font-bold">{{ t('Cleric') }}</span> {{ t('(like Elena) and a') }} <span class="text-white font-bold">{{ t('Tank') }}</span> {{ t('in difficult dungeons to keep your heroes alive!') }}
+            </p>
           </div>
         </div>
       </div>
@@ -211,11 +214,16 @@ import { Hero } from '../../core/interfaces/game-state.interface';
 })
 export class DashboardComponent {
   private readonly gameService = inject(GameService);
+  public readonly trans = inject(TranslationService);
   
   public readonly heroes = this.gameService.heroes;
   public readonly dungeons = this.gameService.dungeons;
   public readonly stats = this.gameService.stats;
   public readonly gameState = this.gameService.state;
+
+  public t(key: string): string {
+    return this.trans.t(key);
+  }
 
   public manualClick() {
     this.gameService.manualClick();
@@ -246,7 +254,8 @@ export class DashboardComponent {
   }
 
   public getDungeonName(id: string): string {
-    return this.dungeons().find(d => d.id === id)?.name || 'Unknown Dungeon';
+    const name = this.dungeons().find(d => d.id === id)?.name || 'Unknown Dungeon';
+    return this.t(name);
   }
 
   public getHeroMaxHp(hero: Hero): number {

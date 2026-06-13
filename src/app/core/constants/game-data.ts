@@ -1,13 +1,15 @@
 import { GameState, HeroClass, UpgradeType, QuestType } from '../interfaces/game-state.interface';
 
 export const INITIAL_GAME_STATE: GameState = {
-  version: '1.4.0',
+  version: '1.5.0',
+  language: 'de',
   resources: {
     gold: 100,
     gems: 0,
     xp: 0,
     dungeonKeys: 5,
-    essence: 0
+    essence: 0,
+    scrapMetal: 0
   },
   heroes: [
     {
@@ -120,7 +122,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 1,
       damagePerSecond: 2,
       isRaid: false,
-      keyCost: 0
+      keyCost: 0,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     },
     {
       id: 'd2',
@@ -134,7 +138,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 1.5,
       damagePerSecond: 5,
       isRaid: false,
-      keyCost: 0
+      keyCost: 0,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     },
     {
       id: 'd_raid1',
@@ -148,7 +154,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 2.2,
       damagePerSecond: 12,
       isRaid: true,
-      keyCost: 1
+      keyCost: 1,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     },
     {
       id: 'd3',
@@ -162,7 +170,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 2.5,
       damagePerSecond: 10,
       isRaid: false,
-      keyCost: 0
+      keyCost: 0,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     },
     {
       id: 'd4',
@@ -176,7 +186,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 6,
       damagePerSecond: 22,
       isRaid: false,
-      keyCost: 0
+      keyCost: 0,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     },
     {
       id: 'd_raid2',
@@ -190,7 +202,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 8.5,
       damagePerSecond: 45,
       isRaid: true,
-      keyCost: 2
+      keyCost: 2,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     },
     {
       id: 'd5',
@@ -204,7 +218,9 @@ export const INITIAL_GAME_STATE: GameState = {
       difficultyMultiplier: 15,
       damagePerSecond: 60,
       isRaid: false,
-      keyCost: 0
+      keyCost: 0,
+      modifierType: 'NONE',
+      modifierRemainingTime: 0
     }
   ],
   upgrades: [
@@ -237,6 +253,36 @@ export const INITIAL_GAME_STATE: GameState = {
       cost: 500,
       costMultiplier: 2.8,
       bonusPerLevel: 0.1
+    },
+    {
+      id: 'u4',
+      name: 'Guild Dormitory',
+      description: 'Improves passive hero healing speed by 25% per level.',
+      type: UpgradeType.GUILD_REGEN,
+      level: 0,
+      cost: 800,
+      costMultiplier: 2.5,
+      bonusPerLevel: 0.25
+    },
+    {
+      id: 'u5',
+      name: 'Guild Library',
+      description: 'Increases experience gain from all sources by 15% per level.',
+      type: UpgradeType.GUILD_XP,
+      level: 0,
+      cost: 1200,
+      costMultiplier: 2.6,
+      bonusPerLevel: 0.15
+    },
+    {
+      id: 'u6',
+      name: 'Guild Vault',
+      description: 'Increases maximum dungeon keys by 1 and max offline cap by 2 hours per level.',
+      type: UpgradeType.GUILD_VAULT,
+      level: 0,
+      cost: 2000,
+      costMultiplier: 3.0,
+      bonusPerLevel: 1.0
     }
   ],
   relics: [
@@ -334,7 +380,9 @@ export const INITIAL_GAME_STATE: GameState = {
     }
   ],
   inventory: [],
+  activePotions: [],
   lastKeyRegenTime: Date.now(),
+  lastModifierRefreshTime: Date.now(),
   stats: {
     totalGoldEarned: 100,
     totalDungeonsCompleted: 0,
@@ -347,11 +395,12 @@ export const INITIAL_GAME_STATE: GameState = {
 
 export const GAME_CONSTANTS = {
   SAVE_KEY: 'IDLE_DUNGEON_MANAGER_SAVE',
-  SAVE_VERSION: '1.4.0',
+  SAVE_VERSION: '1.5.0',
   TICK_RATE: 100, // ms
   OFFLINE_CAP_HOURS: 12,
   XP_PER_LEVEL_BASE: 200,
   XP_LEVEL_EXPONENT: 2.2,
   KEY_REGEN_TIME_BASE: 300, // 5 minutes in seconds (300 seconds)
-  MAX_KEYS_DEFAULT: 10
+  MAX_KEYS_DEFAULT: 10,
+  MODIFIER_REFRESH_INTERVAL: 180 // Refresh every 3 minutes (180 seconds)
 };

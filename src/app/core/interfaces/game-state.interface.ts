@@ -13,6 +13,7 @@ export interface Resources {
   xp: number;
   dungeonKeys: number;
   essence: number;
+  scrapMetal: number;
 }
 
 export enum EquipmentRarity {
@@ -31,6 +32,7 @@ export interface Equipment {
   bonusGold?: number;
   bonusXp?: number;
   bonusHp?: number;
+  level?: number; // Upgrade level
 }
 
 export interface Hero {
@@ -71,6 +73,8 @@ export interface Dungeon {
   damagePerSecond: number; // damage dealt to heroes per second
   isRaid?: boolean; // whether it requires keys
   keyCost?: number; // key cost to run (if isRaid is true)
+  modifierType?: 'NONE' | 'GOBLIN_SWARM' | 'TOXIC_MIST' | 'TREASURE_GOBLIN' | 'ANCIENT_BLESSING';
+  modifierRemainingTime?: number; // duration in seconds
 }
 
 export enum UpgradeType {
@@ -78,7 +82,10 @@ export enum UpgradeType {
   GOLD_GAIN = 'GOLD_GAIN',
   CRIT_CHANCE = 'CRIT_CHANCE',
   DUNGEON_SPEED = 'DUNGEON_SPEED',
-  OFFLINE_EARNINGS = 'OFFLINE_EARNINGS'
+  OFFLINE_EARNINGS = 'OFFLINE_EARNINGS',
+  GUILD_REGEN = 'GUILD_REGEN',
+  GUILD_XP = 'GUILD_XP',
+  GUILD_VAULT = 'GUILD_VAULT'
 }
 
 export interface Upgrade {
@@ -100,6 +107,14 @@ export interface Relic {
   cost: number; // in essence
   bonusPerLevel: number;
   type: 'DAMAGE' | 'GOLD' | 'SPEED' | 'HP' | 'KEY_REGEN';
+}
+
+export interface ActivePotion {
+  id: string;
+  name: string;
+  type: 'HASTE' | 'MIDAS' | 'FINDER';
+  duration: number; // remaining duration in seconds
+  multiplier: number;
 }
 
 export interface Achievement {
@@ -140,7 +155,10 @@ export interface GameState {
   quests: Quest[];
   inventory: Equipment[];
   relics: Relic[];
+  activePotions?: ActivePotion[];
+  lastModifierRefreshTime?: number;
   lastKeyRegenTime?: number;
+  language?: 'de' | 'en';
   stats: {
     totalGoldEarned: number;
     totalDungeonsCompleted: number;

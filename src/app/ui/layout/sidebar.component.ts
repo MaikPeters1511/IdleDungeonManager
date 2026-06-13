@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { CommonModule } from '@angular/common';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -27,7 +28,7 @@ import { CommonModule } from '@angular/common';
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-slate-400">
             <span class="text-lg">💰</span>
-            <span class="text-xs font-bold uppercase tracking-wider">Gold</span>
+            <span class="text-xs font-bold uppercase tracking-wider">{{ t('Gold') }}</span>
           </div>
           <span class="text-lg font-black text-yellow-500 tabular-nums">
             {{ resources().gold | number:'1.0-0' }}
@@ -36,7 +37,7 @@ import { CommonModule } from '@angular/common';
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-slate-400">
             <span class="text-lg">💎</span>
-            <span class="text-xs font-bold uppercase tracking-wider">Gems</span>
+            <span class="text-xs font-bold uppercase tracking-wider">{{ t('Gems') }}</span>
           </div>
           <span class="text-lg font-black text-blue-400 tabular-nums">
             {{ resources().gems | number }}
@@ -45,7 +46,7 @@ import { CommonModule } from '@angular/common';
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-slate-400">
             <span class="text-lg">🔑</span>
-            <span class="text-xs font-bold uppercase tracking-wider">Keys</span>
+            <span class="text-xs font-bold uppercase tracking-wider">{{ t('Keys') }}</span>
           </div>
           <span class="text-lg font-black text-amber-500 tabular-nums">
             {{ resources().dungeonKeys }}/10
@@ -54,10 +55,19 @@ import { CommonModule } from '@angular/common';
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-slate-400">
             <span class="text-lg">🌀</span>
-            <span class="text-xs font-bold uppercase tracking-wider">Essence</span>
+            <span class="text-xs font-bold uppercase tracking-wider">{{ t('Essence') }}</span>
           </div>
           <span class="text-lg font-black text-purple-400 tabular-nums">
             {{ resources().essence | number }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-slate-400">
+            <span class="text-lg">🔧</span>
+            <span class="text-xs font-bold uppercase tracking-wider">{{ t('Scrap') }}</span>
+          </div>
+          <span class="text-lg font-black text-slate-300 tabular-nums">
+            {{ resources().scrapMetal | number }}
           </span>
         </div>
       </div>
@@ -66,27 +76,31 @@ import { CommonModule } from '@angular/common';
       <nav class="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
         <a routerLink="/dashboard" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">📊</span>
-          <span class="nav-text">Dashboard</span>
+          <span class="nav-text">{{ t('Dashboard') }}</span>
         </a>
         <a routerLink="/heroes" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">⚔️</span>
-          <span class="nav-text">Heroes Guild</span>
+          <span class="nav-text">{{ t('Heroes Guild') }}</span>
         </a>
         <a routerLink="/dungeons" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">🏚️</span>
-          <span class="nav-text">Dungeons</span>
+          <span class="nav-text">{{ t('Dungeons') }}</span>
+        </a>
+        <a routerLink="/workshop" routerLinkActive="nav-active" class="nav-item">
+          <span class="nav-icon">🔨</span>
+          <span class="nav-text">{{ t('Gilden-Werkstatt') }}</span>
         </a>
         <a routerLink="/upgrades" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">⚡</span>
-          <span class="nav-text">Upgrades</span>
+          <span class="nav-text">{{ t('Upgrades') }}</span>
         </a>
         <a routerLink="/quests" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">📜</span>
-          <span class="nav-text">Quests</span>
+          <span class="nav-text">{{ t('Quests') }}</span>
         </a>
         <a routerLink="/achievements" routerLinkActive="nav-active" class="nav-item">
           <span class="nav-icon">🏆</span>
-          <span class="nav-text">Trophy Room</span>
+          <span class="nav-text">{{ t('Trophy Room') }}</span>
         </a>
       </nav>
 
@@ -94,7 +108,7 @@ import { CommonModule } from '@angular/common';
       <div class="p-4 mt-auto">
         <a routerLink="/settings" routerLinkActive="bg-white/10" 
            class="flex items-center gap-3 px-5 py-3.5 rounded-xl transition-all duration-200 hover:bg-white/5 text-slate-500 hover:text-slate-200 text-sm font-medium">
-          <span>⚙️</span> Settings
+          <span>⚙️</span> {{ t('Settings') }}
         </a>
       </div>
     </div>
@@ -119,5 +133,10 @@ import { CommonModule } from '@angular/common';
 })
 export class SidebarComponent {
   private readonly gameService = inject(GameService);
+  public readonly trans = inject(TranslationService);
   public readonly resources = this.gameService.resources;
+
+  public t(key: string): string {
+    return this.trans.t(key);
+  }
 }

@@ -63,11 +63,24 @@ export class SaveService {
       state.inventory = [];
     }
 
+    // Version 1.5.0 properties
+    if (state.resources.scrapMetal === undefined) {
+      state.resources.scrapMetal = 0;
+    }
+    if (!state.activePotions) {
+      state.activePotions = [];
+    }
+    if (state.lastModifierRefreshTime === undefined) {
+      state.lastModifierRefreshTime = Date.now();
+    }
+    if (state.language === undefined) {
+      state.language = 'de';
+    }
+
     // Ensure all heroes are present and update their recruitment costs and HP for existing saves
     INITIAL_GAME_STATE.heroes.forEach(initialHero => {
       const existingHero = state.heroes.find((h: any) => h.id === initialHero.id);
       if (existingHero) {
-        // Update recruitment cost to match new balance
         existingHero.upgradeCost = initialHero.upgradeCost;
         if (existingHero.maxHp === undefined) {
           existingHero.maxHp = initialHero.maxHp;
@@ -75,20 +88,31 @@ export class SaveService {
           existingHero.isResting = false;
         }
       } else {
-        // Add new hero if it doesn't exist
         state.heroes.push({ ...initialHero });
       }
     });
 
-    // Merge dungeons (e.g. adding raids if they don't exist)
+    // Merge dungeons (e.g. adding raids and modifier placeholders if they don't exist)
     INITIAL_GAME_STATE.dungeons.forEach(initialDungeon => {
       const existingDungeon = state.dungeons.find((d: any) => d.id === initialDungeon.id);
       if (existingDungeon) {
         existingDungeon.damagePerSecond = initialDungeon.damagePerSecond;
         existingDungeon.isRaid = initialDungeon.isRaid;
         existingDungeon.keyCost = initialDungeon.keyCost;
+        if (existingDungeon.modifierType === undefined) {
+          existingDungeon.modifierType = initialDungeon.modifierType || 'NONE';
+          existingDungeon.modifierRemainingTime = initialDungeon.modifierRemainingTime || 0;
+        }
       } else {
         state.dungeons.push({ ...initialDungeon });
+      }
+    });
+
+    // Merge upgrades (e.g. adding new u4, u5, u6 if they don't exist)
+    INITIAL_GAME_STATE.upgrades.forEach(initialUpgrade => {
+      const existingUpgrade = state.upgrades.find((u: any) => u.id === initialUpgrade.id);
+      if (!existingUpgrade) {
+        state.upgrades.push({ ...initialUpgrade });
       }
     });
 

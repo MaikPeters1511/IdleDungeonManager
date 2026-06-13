@@ -1,6 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-achievements',
@@ -9,8 +10,8 @@ import { GameService } from '../../services/game.service';
   template: `
     <div class="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
       <header>
-        <h2 class="text-4xl font-black text-white tracking-tight">Trophy Room</h2>
-        <p class="text-slate-400 mt-2 text-lg">Your legacy is carved in gold and blood.</p>
+        <h2 class="text-4xl font-black text-white tracking-tight">{{ t('Trophy Room') }}</h2>
+        <p class="text-slate-400 mt-2 text-lg">{{ t('Your legacy is carved in gold and blood.') }}</p>
       </header>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -24,19 +25,19 @@ import { GameService } from '../../services/game.service';
                 {{ ach.isUnlocked ? '🏆' : '🔒' }}
               </div>
               <div class="flex-1">
-                <h3 class="text-xl font-bold text-white mb-1">{{ ach.name }}</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">{{ ach.description }}</p>
+                <h3 class="text-xl font-bold text-white mb-1">{{ t(ach.name) }}</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">{{ t(ach.description) }}</p>
               </div>
             </div>
 
             @if (ach.isUnlocked) {
               <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                <span class="text-[10px] font-black text-green-500 uppercase tracking-widest">Completed</span>
-                <span class="text-xs font-bold text-slate-400 italic">Reward Claimed</span>
+                <span class="text-[10px] font-black text-green-500 uppercase tracking-widest">{{ t('Completed') }}</span>
+                <span class="text-xs font-bold text-slate-400 italic">{{ t('Reward Claimed') }}</span>
               </div>
             } @else {
               <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">In Progress</span>
+                <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">{{ t('In Progress') }}</span>
                 <div class="flex items-center gap-2">
                   @if (ach.reward?.gold) {
                     <span class="text-xs font-bold text-yellow-500/50">+{{ ach.reward?.gold }} 💰</span>
@@ -55,5 +56,10 @@ import { GameService } from '../../services/game.service';
 })
 export class AchievementsComponent {
   private readonly gameService = inject(GameService);
+  public readonly trans = inject(TranslationService);
   public readonly achievements = computed(() => this.gameService.state().achievements || []);
+
+  public t(key: string): string {
+    return this.trans.t(key);
+  }
 }

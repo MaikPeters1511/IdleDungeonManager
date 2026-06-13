@@ -19,9 +19,12 @@ export class GameEngine {
       achievements: state.achievements.map(a => ({ ...a })),
       quests: (state.quests || []).map(q => ({ ...q })),
       inventory: (state.inventory || []).map(i => ({ ...i })),
-      relics: (state.relics || []).map(r => ({ ...r }))
+      relics: (state.relics || []).map(r => ({ ...r })),
+      activePotions: (state.activePotions || []).map(p => ({ ...p }))
     };
     
+    this.processPotions(newState, deltaTime);
+    this.processModifiers(newState, deltaTime);
     this.processKeyRegen(newState, deltaTime);
     this.processRestAndHealing(newState, deltaTime);
     this.processDungeonProgress(newState, deltaTime);
@@ -31,8 +34,63 @@ export class GameEngine {
     return newState;
   }
 
+  private static processPotions(state: GameState, deltaTime: number): void {
+    if (!state.activePotions) {
+      state.activePotions = [];
+      return;
+    }
+    state.activePotions.forEach(p => {
+      p.duration -= deltaTime;
+    });
+    // Filter out expired potions
+    state.activePotions = state.activePotions.filter(p => p.duration > 0);
+  }
+
+  private static processModifiers(state: GameState, deltaTime: number): void {
+    if (state.lastModifierRefreshTime === undefined) {
+      state.lastModifierRefreshTime = Date.now();
+    }
+    
+    const now = Date.now();
+    const elapsed = (now - state.lastModifierRefreshTime) / 1000;
+    
+    if (elapsed >= GAME_CONSTANTS.MODIFIER_REFRESH_INTERVAL) {
+      this.refreshDungeonModifiers(state);
+    } else {
+      // Decrease modifier duration
+      state.dungeons.forEach(d => {
+        if (d.modifierRemainingTime && d.modifierRemainingTime > 0) {
+          d.modifierRemainingTime -= deltaTime;
+          if (d.modifierRemainingTime <= 0) {
+            d.modifierType = 'NONE';
+            d.modifierRemainingTime = 0;
+          }
+        }
+      });
+    }
+  }
+
+  private static refreshDungeonModifiers(state: GameState): void {
+    const modTypes: ('NONE' | 'NONE' | 'NONE' | 'GOBLIN_SWARM' | 'TOXIC_MIST' | 'TREASURE_GOBLIN' | 'ANCIENT_BLESSING')[] = [
+      'NONE', 'NONE', 'NONE',
+      'GOBLIN_SWARM', 'TOXIC_MIST', 'TREASURE_GOBLIN', 'ANCIENT_BLESSING'
+    ];
+    state.dungeons.forEach(d => {
+      if (d.isUnlocked) {
+        const type = modTypes[Math.floor(Math.random() * modTypes.length)];
+        d.modifierType = type;
+        d.modifierRemainingTime = GAME_CONSTANTS.MODIFIER_REFRESH_INTERVAL;
+      } else {
+        d.modifierType = 'NONE';
+        d.modifierRemainingTime = 0;
+      }
+    });
+    state.lastModifierRefreshTime = Date.now();
+  }
+
   private static processKeyRegen(state: GameState, deltaTime: number): void {
-    if (state.resources.dungeonKeys >= GAME_CONSTANTS.MAX_KEYS_DEFAULT) {
+    const maxKeys = this.getMaxKeys(state);
+    if (state.resources.dungeonKeys >= maxKeys) {
       state.lastKeyRegenTime = Date.now();
       return;
     }
@@ -50,7 +108,7 @@ export class GameEngine {
     if (elapsedSeconds >= regenInterval) {
       const keysToAdd = Math.floor(elapsedSeconds / regenInterval);
       state.resources.dungeonKeys = Math.min(
-        GAME_CONSTANTS.MAX_KEYS_DEFAULT,
+        maxKeys,
         state.resources.dungeonKeys + keysToAdd
       );
       state.lastKeyRegenTime = now - ((elapsedSeconds % regenInterval) * 1000);
@@ -67,9 +125,10 @@ export class GameEngine {
 
       if (hero.currentHp < maxHp) {
         // Base healing: 8% of max HP per second. If Cleric is idle in the guild, heal faster!
+        const dormUpgradeLevel = this.getUpgradeBonus(state, UpgradeType.GUILD_REGEN);
         const idleClerics = state.heroes.filter(h => h.isUnlocked && h.heroClass === HeroClass.CLERIC && !h.currentDungeonId).length;
         const clericBonus = 1 + (idleClerics * 0.25);
-        const healRate = maxHp * 0.08 * clericBonus;
+        const healRate = maxHp * 0.08 * clericBonus * (1 + dormUpgradeLevel);
         
         hero.currentHp = Math.min(maxHp, hero.currentHp + healRate * deltaTime);
       }
@@ -96,7 +155,8 @@ export class GameEngine {
       if (!dungeon) return;
 
       // Group synergy check
-      const hasTank = heroesInDungeon.some(h => h.heroClass === HeroClass.WARRIOR || h.heroClass === HeroClass.PALADIN);
+      const hasWarrior = heroesInDungeon.some(h => h.heroClass === HeroClass.WARRIOR);
+      const hasPaladin = heroesInDungeon.some(h => h.heroClass === HeroClass.PALADIN);
       const clerics = heroesInDungeon.filter(h => h.heroClass === HeroClass.CLERIC);
       
       // Cleric heals other heroes by level scale + damage multiplier
@@ -112,17 +172,38 @@ export class GameEngine {
 
         // Damage calculation
         let dps = dungeon.damagePerSecond;
-        const isTank = hero.heroClass === HeroClass.WARRIOR || hero.heroClass === HeroClass.PALADIN;
-        
-        // Non-tanks take half damage if a tank is in the dungeon
-        if (hasTank && !isTank) {
-          dps *= 0.5;
+
+        // Apply dungeon modifiers to DPS
+        if (dungeon.modifierType === 'GOBLIN_SWARM') dps *= 1.5;
+        if (dungeon.modifierType === 'TOXIC_MIST') dps *= 2.0;
+
+        let damageTaken = dps * deltaTime;
+
+        // Warrior Taunt Active skill: Alaric absorbs damage for others
+        if (hasWarrior) {
+          if (hero.heroClass === HeroClass.WARRIOR) {
+            damageTaken *= 0.8; // Takes 20% less damage himself due to shield block
+          } else {
+            damageTaken = 0; // Other heroes take zero damage!
+          }
+        } else if (hasPaladin) {
+          // Paladin Aura: reduces damage taken by everyone by 25%
+          damageTaken *= 0.75;
         }
 
-        // Apply damage and healing
-        const damageTaken = dps * deltaTime;
         const healingReceived = totalHealPerSecond * deltaTime;
         
+        // Cleric Resurrection passive skill: prevents K.O. once every 60 seconds
+        if (hero.currentHp - damageTaken + healingReceived <= 0 && clerics.length > 0) {
+          const now = Date.now();
+          const readyCleric = clerics.find(c => !c.lastAttackTime || (now - c.lastAttackTime) > 60000);
+          if (readyCleric) {
+            readyCleric.lastAttackTime = now; // Put resurrection on cooldown
+            hero.currentHp = Math.floor(maxHp * 0.3); // Resurrect at 30% HP
+            return;
+          }
+        }
+
         hero.currentHp = Math.max(0, Math.min(maxHp, hero.currentHp - damageTaken + healingReceived));
 
         // Death / KO check
@@ -135,22 +216,46 @@ export class GameEngine {
 
         // Progress dungeon
         if (hero.dungeonProgress === undefined) hero.dungeonProgress = 0;
-        hero.dungeonProgress += deltaTime;
+        
+        // Mage Meteor Strike skill: 15% chance per tick to gain extra progress
+        let progressGain = deltaTime;
+        if (hero.heroClass === HeroClass.MAGE && Math.random() < 0.15) {
+          progressGain += 1.5; // Meteor strikes!
+        }
+        
+        // Rogue Assassinate skill: 3% chance per tick to instantly complete the dungeon
+        if (hero.heroClass === HeroClass.ROGUE && Math.random() < 0.03) {
+          const dur = this.getEffectiveDungeonDuration(state, dungeon, hero);
+          hero.dungeonProgress = dur;
+        } else {
+          hero.dungeonProgress += progressGain;
+        }
 
         const effectiveDuration = this.getEffectiveDungeonDuration(state, dungeon, hero);
         if (hero.dungeonProgress >= effectiveDuration) {
           hero.dungeonProgress = 0;
 
-          // Rewards
+          // Gold Rewards
           const goldUpgradeBonus = this.getUpgradeBonus(state, UpgradeType.GOLD_GAIN);
           const goldRelicBonus = this.getRelicBonus(state, 'GOLD');
           const eqGoldBonus = hero.equipment?.accessory?.bonusGold || 0;
-          const goldBonusMultiplier = 1 + goldUpgradeBonus + goldRelicBonus + eqGoldBonus;
           
+          // Midas Potion Active multiplier (2x)
+          const midasPotionActive = state.activePotions?.some(p => p.type === 'MIDAS');
+          const potionGoldMultiplier = midasPotionActive ? 2.0 : 1.0;
+          
+          // Goblin Swarm Modifier multiplier (2x)
+          const modGoldMultiplier = dungeon.modifierType === 'GOBLIN_SWARM' ? 2.0 : 1.0;
+
+          const goldBonusMultiplier = (1 + goldUpgradeBonus + goldRelicBonus + eqGoldBonus) * potionGoldMultiplier * modGoldMultiplier;
           const goldReward = dungeon.goldReward * hero.goldBonus * goldBonusMultiplier;
           
+          // XP Rewards
+          const xpUpgradeBonus = this.getUpgradeBonus(state, UpgradeType.GUILD_XP);
           const eqXpBonus = hero.equipment?.accessory?.bonusXp || 0;
-          const xpReward = dungeon.xpReward * (1 + eqXpBonus);
+          const modXpMultiplier = dungeon.modifierType === 'TOXIC_MIST' ? 1.5 : 1.0;
+
+          const xpReward = dungeon.xpReward * (1 + eqXpBonus + xpUpgradeBonus) * modXpMultiplier;
 
           state.resources.gold += goldReward;
           state.resources.xp += xpReward;
@@ -170,7 +275,12 @@ export class GameEngine {
           }
 
           // Equipment Drop Roll
-          if (Math.random() < dungeon.dropChance) {
+          let dropChance = dungeon.dropChance;
+          const finderPotionActive = state.activePotions?.some(p => p.type === 'FINDER');
+          if (finderPotionActive) dropChance *= 2.0;
+          if (dungeon.modifierType === 'TREASURE_GOBLIN') dropChance *= 3.0;
+
+          if (Math.random() < dropChance) {
             const newItem = this.generateLoot(dungeon);
             state.inventory.push(newItem);
           }
@@ -271,7 +381,8 @@ export class GameEngine {
       bonusDamage,
       bonusHp,
       bonusGold,
-      bonusXp
+      bonusXp,
+      level: 1 // Start at upgrade level 1
     };
   }
 
@@ -320,17 +431,36 @@ export class GameEngine {
     const damageBonus = this.getUpgradeBonus(state, UpgradeType.HERO_DAMAGE);
     const relicSpeedBonus = this.getRelicBonus(state, 'SPEED');
     
+    // Potion Haste active check (+50% speed multiplier)
+    const hastePotionActive = state.activePotions?.some(p => p.type === 'HASTE');
+    const potionSpeedMultiplier = hastePotionActive ? 1.5 : 1.0;
+
+    let duration = dungeon.duration;
+    // Ancient Blessing Modifier speed-up (1.5x speed)
+    if (dungeon.modifierType === 'ANCIENT_BLESSING') {
+      duration /= 1.5;
+    }
+
+    // Archer Lirael skill: moves 35% faster
+    if (hero.heroClass === HeroClass.ARCHER) {
+      duration /= 1.35;
+    }
+
     const damageFactor = 1 + (damageBonus * 0.5);
-    const totalSpeedFactor = (1 + speedBonus + relicSpeedBonus) * damageFactor;
+    const totalSpeedFactor = (1 + speedBonus + relicSpeedBonus) * damageFactor * potionSpeedMultiplier;
     
-    return Math.max(0.5, dungeon.duration / totalSpeedFactor);
+    return Math.max(0.5, duration / totalSpeedFactor);
   }
 
   public static getHeroEffectiveDamage(state: GameState, hero: Hero): number {
     const damageBonus = this.getUpgradeBonus(state, UpgradeType.HERO_DAMAGE);
     const relicDamageBonus = this.getRelicBonus(state, 'DAMAGE');
     
-    const weaponDamage = hero.equipment?.weapon?.bonusDamage || 0;
+    const weapon = hero.equipment?.weapon;
+    let weaponDamage = weapon?.bonusDamage || 0;
+    if (weapon && weapon.level) {
+      weaponDamage = Math.floor(weaponDamage * (1 + (weapon.level - 1) * 0.20));
+    }
     
     return Math.floor((hero.baseDamage + weaponDamage) * (1 + damageBonus + relicDamageBonus));
   }
@@ -338,9 +468,24 @@ export class GameEngine {
   public static getHeroMaxHp(state: GameState, hero: Hero): number {
     const baseMaxHp = hero.maxHp || 100;
     const relicHpBonus = this.getRelicBonus(state, 'HP');
-    const armorHp = hero.equipment?.armor?.bonusHp || 0;
+    
+    const armor = hero.equipment?.armor;
+    let armorHp = armor?.bonusHp || 0;
+    if (armor && armor.level) {
+      armorHp = Math.floor(armorHp * (1 + (armor.level - 1) * 0.20));
+    }
     
     return Math.floor((baseMaxHp + armorHp) * (1 + relicHpBonus));
+  }
+
+  public static getMaxKeys(state: GameState): number {
+    const vaultBonus = this.getUpgradeBonus(state, UpgradeType.GUILD_VAULT);
+    return GAME_CONSTANTS.MAX_KEYS_DEFAULT + Math.floor(vaultBonus);
+  }
+
+  public static getMaxOfflineHours(state: GameState): number {
+    const vaultBonus = this.getUpgradeBonus(state, UpgradeType.GUILD_VAULT);
+    return GAME_CONSTANTS.OFFLINE_CAP_HOURS + (vaultBonus * 2);
   }
 
   public static getUpgradeBonus(state: GameState, type: UpgradeType): number {
@@ -370,7 +515,8 @@ export class GameEngine {
 
   public static calculateOfflineProgress(state: GameState, lastTime: number, currentTime: number): { state: GameState, earned: Partial<Resources>, seconds: number } {
     const elapsedSeconds = (currentTime - lastTime) / 1000;
-    const cappedSeconds = Math.min(elapsedSeconds, GAME_CONSTANTS.OFFLINE_CAP_HOURS * 3600);
+    const maxOfflineSeconds = this.getMaxOfflineHours(state) * 3600;
+    const cappedSeconds = Math.min(elapsedSeconds, maxOfflineSeconds);
     
     if (cappedSeconds < 60) return { state, earned: { gold: 0 }, seconds: cappedSeconds };
 
@@ -397,7 +543,12 @@ export class GameEngine {
           const goldUpgradeBonus = this.getUpgradeBonus(state, UpgradeType.GOLD_GAIN);
           const goldRelicBonus = this.getRelicBonus(state, 'GOLD');
           const eqGoldBonus = hero.equipment?.accessory?.bonusGold || 0;
-          const goldBonusMultiplier = 1 + goldUpgradeBonus + goldRelicBonus + eqGoldBonus;
+          
+          const midasPotionActive = state.activePotions?.some(p => p.type === 'MIDAS');
+          const potionGoldMultiplier = midasPotionActive ? 2.0 : 1.0;
+          const modGoldMultiplier = dungeon.modifierType === 'GOBLIN_SWARM' ? 2.0 : 1.0;
+
+          const goldBonusMultiplier = (1 + goldUpgradeBonus + goldRelicBonus + eqGoldBonus) * potionGoldMultiplier * modGoldMultiplier;
           
           const dungeonGps = dungeon.goldReward / this.getEffectiveDungeonDuration(state, dungeon, hero);
           totalGps += dungeonGps * hero.goldBonus * goldBonusMultiplier;
