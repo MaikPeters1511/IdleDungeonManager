@@ -51,19 +51,43 @@ import { TranslationService } from '../../services/translation.service';
             </div>
 
             <!-- Search & Filters -->
-            <div class="flex flex-col md:flex-row gap-4 bg-slate-950/20 p-4 rounded-2xl border border-white/5">
-              <!-- Search -->
-              <div class="flex-1 relative">
-                <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
-                <input type="text"
-                       [placeholder]="t('Search items...')"
-                       (input)="onSearchInput($event)"
-                       [value]="searchQuery()"
-                       class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition">
+            <div class="flex flex-col gap-3.5 bg-slate-950/20 p-4 rounded-2xl border border-white/5">
+              <!-- Search & Selects Row -->
+              <div class="flex flex-col sm:flex-row gap-3">
+                <!-- Search -->
+                <div class="flex-1 relative">
+                  <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
+                  <input type="text"
+                         [placeholder]="t('Search items...')"
+                         (input)="onSearchInput($event)"
+                         [value]="searchQuery()"
+                         class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition">
+                </div>
+
+                <!-- Slot Filter -->
+                <select (change)="onSlotSelect($event)"
+                        [value]="selectedSlot()"
+                        class="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50 w-full sm:w-auto min-w-[120px]">
+                  <option value="All">{{ t('All Slots') }}</option>
+                  <option value="Weapon">{{ t('Weapon') }}</option>
+                  <option value="Armor">{{ t('Armor') }}</option>
+                  <option value="Accessory">{{ t('Accessory') }}</option>
+                </select>
+
+                <!-- Sort Filter -->
+                <select (change)="onSortSelect($event)"
+                        [value]="sortBy()"
+                        class="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50 w-full sm:w-auto min-w-[140px]">
+                  <option value="newest">{{ t('Newest') }}</option>
+                  <option value="rarity-desc">{{ t('Rarity: High to Low') }}</option>
+                  <option value="rarity-asc">{{ t('Rarity: Low to High') }}</option>
+                  <option value="level-desc">{{ t('Level: High to Low') }}</option>
+                  <option value="level-asc">{{ t('Level: Low to High') }}</option>
+                </select>
               </div>
 
-              <!-- Rarity Filter -->
-              <div class="flex flex-wrap gap-1 bg-slate-900 p-1 rounded-xl border border-white/10 shrink-0">
+              <!-- Rarity Filter Row -->
+              <div class="flex flex-wrap gap-1 bg-slate-900 p-1 rounded-xl border border-white/10 self-start">
                 @for (r of ['All', 'Common', 'Rare', 'Epic', 'Legendary']; track r) {
                   <button (click)="selectRarity(r)"
                           [class.bg-slate-800]="selectedRarity() === r"
@@ -74,27 +98,6 @@ import { TranslationService } from '../../services/translation.service';
                   </button>
                 }
               </div>
-
-              <!-- Slot Filter -->
-              <select (change)="onSlotSelect($event)"
-                      [value]="selectedSlot()"
-                      class="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50">
-                <option value="All">{{ t('All Slots') }}</option>
-                <option value="Weapon">{{ t('Weapon') }}</option>
-                <option value="Armor">{{ t('Armor') }}</option>
-                <option value="Accessory">{{ t('Accessory') }}</option>
-              </select>
-
-              <!-- Sort Filter -->
-              <select (change)="onSortSelect($event)"
-                      [value]="sortBy()"
-                      class="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50">
-                <option value="newest">{{ t('Newest') }}</option>
-                <option value="rarity-desc">{{ t('Rarity: High to Low') }}</option>
-                <option value="rarity-asc">{{ t('Rarity: Low to High') }}</option>
-                <option value="level-desc">{{ t('Level: High to Low') }}</option>
-                <option value="level-asc">{{ t('Level: Low to High') }}</option>
-              </select>
             </div>
 
             <div class="grid grid-cols-1 gap-4">
