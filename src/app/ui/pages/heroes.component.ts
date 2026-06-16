@@ -123,15 +123,15 @@ import { TranslationService } from '../../services/translation.service';
               <div class="grid grid-cols-2 gap-4 mb-8">
                 <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                   <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-lg">⚔️</div>
-                  <div>
-                    <p class="text-[10px] font-black text-slate-600 uppercase leading-none mb-1">{{ t('Total Power') }}</p>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-[10px] font-black text-slate-600 uppercase leading-tight mb-1">{{ t('Total Power') }}</p>
                     <p class="text-lg font-black text-white leading-none">{{ getEffectiveDamage(hero) | number }}</p>
                   </div>
                 </div>
                 <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                   <div class="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center text-lg">⏱️</div>
-                  <div>
-                    <p class="text-[10px] font-black text-slate-600 uppercase leading-none mb-1">{{ t('Attack Speed') }}</p>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-[10px] font-black text-slate-600 uppercase leading-tight mb-1">{{ t('Attack Speed') }}</p>
                     <p class="text-lg font-black text-white leading-none">{{ hero.attackSpeed }}s</p>
                   </div>
                 </div>

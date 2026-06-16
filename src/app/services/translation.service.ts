@@ -96,7 +96,7 @@ export class TranslationService {
     'Manage and upgrade your heroes.': { de: 'Verwalte und verbessere deine Helden.', en: 'Manage and upgrade your heroes.' },
     'Level': { de: 'Stufe', en: 'Level' },
     'Damage': { de: 'Schaden', en: 'Damage' },
-    'Attack Speed': { de: 'Angriffsgeschwindigkeit', en: 'Attack Speed' },
+    'Attack Speed': { de: 'Angriffstempo', en: 'Attack Speed' },
     'Equipment': { de: 'Ausrüstung', en: 'Equipment' },
     'Equipped': { de: 'Ausgerüstet', en: 'Equipped' },
     'Weapon': { de: 'Waffe', en: 'Weapon' },
@@ -219,12 +219,12 @@ export class TranslationService {
     // Slots
 
     // Hero Skills and names
-    'Taunt (🛡️ Spott)': { de: 'Spott (🛡️ Spott)', en: 'Taunt (🛡️ Spott)' },
-    'Meteor Strike (☄️ Meteor)': { de: 'Meteorhagel (☄️ Meteor)', en: 'Meteor Strike (☄️ Meteor)' },
-    'Assassinate (🗡️ Meucheln)': { de: 'Meucheln (🗡️ Meucheln)', en: 'Assassinate (🗡️ Meucheln)' },
-    'Resurrection (👼 Wiederbelebung)': { de: 'Wiederbelebung (👼 Wiederbelebung)', en: 'Resurrection (👼 Wiederbelebung)' },
-    'Aura of Protection (🛡️ Schutz-Aura)': { de: 'Schutz-Aura (🛡️ Schutz-Aura)', en: 'Aura of Protection (🛡️ Schutz-Aura)' },
-    'Critical Strike (🎯 Volltreffer)': { de: 'Volltreffer (🎯 Volltreffer)', en: 'Critical Strike (🎯 Volltreffer)' },
+    'Taunt (🛡️ Spott)': { de: '🛡️ Spott', en: '🛡️ Taunt' },
+    'Meteor Strike (☄️ Meteor)': { de: '☄️ Meteorhagel', en: '☄️ Meteor Strike' },
+    'Assassinate (🗡️ Meucheln)': { de: '🗡️ Meucheln', en: '🗡️ Assassinate' },
+    'Resurrection (👼 Wiederbelebung)': { de: '👼 Wiederbelebung', en: '👼 Resurrection' },
+    'Aura of Protection (🛡️ Schutz-Aura)': { de: '🛡️ Schutz-Aura', en: '🛡️ Protection Aura' },
+    'Critical Strike (🎯 Volltreffer)': { de: '🎯 Volltreffer', en: '🎯 Critical Strike' },
     'Gilde-Training': { de: 'Gilden-Training', en: 'Guild Training' },
 
     // Hero Skill Descriptions
