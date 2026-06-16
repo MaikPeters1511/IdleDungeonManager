@@ -136,6 +136,12 @@ import { TranslationService } from '../../services/translation.service';
                     </div>
 
                   </div>
+
+                  <!-- Recall Button -->
+                  <button (click)="recallHero(hero.id)" 
+                          class="btn btn-outline btn-error btn-xs sm:btn-sm px-2.5 sm:px-3 rounded-xl font-bold shrink-0 self-center">
+                    {{ t('Recall') }}
+                  </button>
                 </div>
               }
             } @empty {
@@ -288,5 +294,9 @@ export class DashboardComponent {
     if (!dungeon) return 0;
     const effectiveDuration = GameEngine.getEffectiveDungeonDuration(this.gameState(), dungeon, hero);
     return Math.max(0, effectiveDuration - hero.dungeonProgress);
+  }
+
+  public recallHero(heroId: string): void {
+    this.gameService.assignHeroToDungeon(heroId, undefined);
   }
 }

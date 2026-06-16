@@ -173,6 +173,8 @@ export class TranslationService {
     'Low Rarity': { de: 'Niedrige Seltenheit', en: 'Low Rarity' },
     'High Level': { de: 'Hohe Stufe', en: 'High Level' },
     'Low Level': { de: 'Niedrige Stufe', en: 'Low Level' },
+    'Recall': { de: 'Abbrechen', en: 'Cancel' },
+    'Click to recall': { de: 'Klicken zum Abbrechen', en: 'Click to cancel' },
 
     // Upgrades & Ascension
     'Guild Upgrades & Ascension': { de: 'Gilden-Upgrades & Aufstieg', en: 'Guild Upgrades & Ascension' },

@@ -93,9 +93,13 @@ import { TranslationService } from '../../services/translation.service';
                 <p class="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest">{{ t('Active Heroes') }}</p>
                 <div class="flex flex-wrap gap-2">
                   @for (hero of getHeroesInDungeon(dungeon.id); track hero.id) {
-                    <div class="w-8 h-8 rounded-lg overflow-hidden border border-white/10 tooltip shadow-lg" 
-                         [attr.data-tip]="hero.name">
+                    <div class="relative group/hero w-8 h-8 rounded-lg overflow-hidden border border-white/10 tooltip shadow-lg cursor-pointer" 
+                         [attr.data-tip]="t('Click to recall') + ' ' + hero.name"
+                         (click)="recallHero(hero.id)">
                       <img [src]="getHeroImage(hero.heroClass)" class="w-full h-full object-cover">
+                      <div class="absolute inset-0 bg-red-600/80 flex items-center justify-center opacity-0 group-hover/hero:opacity-100 transition-opacity">
+                        <span class="text-white text-[10px] font-black font-sans">✕</span>
+                      </div>
                     </div>
                   } @empty {
                     <p class="text-[10px] italic text-slate-600">{{ t('None assigned') }}</p>
@@ -173,5 +177,9 @@ export class DungeonsComponent {
       case 'ANCIENT_BLESSING': return 'bg-blue-500/25 text-blue-400 border-blue-500/30';
       default: return 'bg-slate-700/20 text-slate-400 border-slate-600/30';
     }
+  }
+
+  public recallHero(heroId: string): void {
+    this.gameService.assignHeroToDungeon(heroId, undefined);
   }
 }
