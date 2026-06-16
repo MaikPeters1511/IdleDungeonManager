@@ -161,6 +161,18 @@ export class TranslationService {
     'All common items dismantled!': { de: 'Alle gewöhnlichen Gegenstände zerschreddert!', en: 'All common items dismantled!' },
     'Potion brewed successfully!': { de: 'Trank erfolgreich gebraut!', en: 'Potion brewed successfully!' },
     'Heroes healed successfully!': { de: 'Helden erfolgreich geheilt!', en: 'Heroes healed successfully!' },
+    'Search items...': { de: 'Gegenstände suchen...', en: 'Search items...' },
+    'All Slots': { de: 'Alle Slots', en: 'All Slots' },
+    'Newest': { de: 'Neueste zuerst', en: 'Newest' },
+    'Rarity: High to Low': { de: 'Seltenheit: Hoch zu Niedrig', en: 'Rarity: High to Low' },
+    'Rarity: Low to High': { de: 'Seltenheit: Niedrig zu Hoch', en: 'Rarity: Low to High' },
+    'Level: High to Low': { de: 'Stufe: Hoch zu Niedrig', en: 'Level: High to Low' },
+    'Level: Low to High': { de: 'Stufe: Niedrig zu Hoch', en: 'Level: Low to High' },
+    'Loading more items...': { de: 'Lade weitere Gegenstände...', en: 'Loading more items...' },
+    'High Rarity': { de: 'Hohe Seltenheit', en: 'High Rarity' },
+    'Low Rarity': { de: 'Niedrige Seltenheit', en: 'Low Rarity' },
+    'High Level': { de: 'Hohe Stufe', en: 'High Level' },
+    'Low Level': { de: 'Niedrige Stufe', en: 'Low Level' },
 
     // Upgrades & Ascension
     'Guild Upgrades & Ascension': { de: 'Gilden-Upgrades & Aufstieg', en: 'Guild Upgrades & Ascension' },

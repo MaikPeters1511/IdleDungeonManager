@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 import { Equipment, ActivePotion, Hero } from '../../core/interfaces/game-state.interface';
@@ -50,8 +50,55 @@ import { TranslationService } from '../../services/translation.service';
               </div>
             </div>
 
+            <!-- Search & Filters -->
+            <div class="flex flex-col md:flex-row gap-4 bg-slate-950/20 p-4 rounded-2xl border border-white/5">
+              <!-- Search -->
+              <div class="flex-1 relative">
+                <span class="absolute inset-y-0 left-3 flex items-center text-slate-500 text-sm">🔍</span>
+                <input type="text"
+                       [placeholder]="t('Search items...')"
+                       (input)="onSearchInput($event)"
+                       [value]="searchQuery()"
+                       class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition">
+              </div>
+
+              <!-- Rarity Filter -->
+              <div class="flex flex-wrap gap-1 bg-slate-900 p-1 rounded-xl border border-white/10 shrink-0">
+                @for (r of ['All', 'Common', 'Rare', 'Epic', 'Legendary']; track r) {
+                  <button (click)="selectRarity(r)"
+                          [class.bg-slate-800]="selectedRarity() === r"
+                          [class.text-white]="selectedRarity() === r"
+                          [class.text-slate-400]="selectedRarity() !== r"
+                          class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition">
+                    {{ t(r) }}
+                  </button>
+                }
+              </div>
+
+              <!-- Slot Filter -->
+              <select (change)="onSlotSelect($event)"
+                      [value]="selectedSlot()"
+                      class="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50">
+                <option value="All">{{ t('All Slots') }}</option>
+                <option value="Weapon">{{ t('Weapon') }}</option>
+                <option value="Armor">{{ t('Armor') }}</option>
+                <option value="Accessory">{{ t('Accessory') }}</option>
+              </select>
+
+              <!-- Sort Filter -->
+              <select (change)="onSortSelect($event)"
+                      [value]="sortBy()"
+                      class="px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50">
+                <option value="newest">{{ t('Newest') }}</option>
+                <option value="rarity-desc">{{ t('Rarity: High to Low') }}</option>
+                <option value="rarity-asc">{{ t('Rarity: Low to High') }}</option>
+                <option value="level-desc">{{ t('Level: High to Low') }}</option>
+                <option value="level-asc">{{ t('Level: Low to High') }}</option>
+              </select>
+            </div>
+
             <div class="grid grid-cols-1 gap-4">
-              @for (item of inventory(); track item.id) {
+              @for (item of displayedInventory(); track item.id) {
                 <div class="premium-card flex flex-col sm:flex-row items-center justify-between gap-6 !p-4 hover:border-primary/20 transition-all">
                   
                   <!-- Checkbox & Item Info -->
@@ -106,6 +153,12 @@ import { TranslationService } from '../../services/translation.service';
                 </div>
               }
             </div>
+
+            @if (filteredInventory().length > displayedInventory().length) {
+              <div #scrollAnchor class="text-center py-4 text-xs text-slate-500 font-bold animate-pulse">
+                {{ t('Loading more items...') }}
+              </div>
+            }
           </div>
 
           <!-- Combine (Forge) Panel (Right Column) -->
@@ -277,7 +330,7 @@ import { TranslationService } from '../../services/translation.service';
   `,
   styles: []
 })
-export class WorkshopComponent {
+export class WorkshopComponent implements OnDestroy {
   private readonly gameService = inject(GameService);
   public readonly trans = inject(TranslationService);
 
@@ -292,6 +345,129 @@ export class WorkshopComponent {
   public readonly gold = computed(() => this.gameService.resources().gold);
   public readonly scrap = computed(() => this.gameService.resources().scrapMetal);
   public readonly gems = computed(() => this.gameService.resources().gems);
+
+  // Search, Filter & Pagination Signals
+  public readonly searchQuery = signal<string>('');
+  public readonly selectedRarity = signal<string>('All');
+  public readonly selectedSlot = signal<string>('All');
+  public readonly sortBy = signal<string>('newest');
+  public readonly itemsToShow = signal<number>(30);
+
+  // Computed signal for filtered & sorted inventory
+  public readonly filteredInventory = computed(() => {
+    let items = [...this.inventory()];
+    
+    // Filter by rarity
+    const rarity = this.selectedRarity();
+    if (rarity !== 'All') {
+      items = items.filter(i => i.rarity === rarity);
+    }
+    
+    // Filter by slot
+    const slot = this.selectedSlot();
+    if (slot !== 'All') {
+      items = items.filter(i => i.slot === slot);
+    }
+    
+    // Filter by search query
+    const query = this.searchQuery().trim().toLowerCase();
+    if (query) {
+      items = items.filter(i => i.name.toLowerCase().includes(query));
+    }
+    
+    // Sort
+    const sortVal = this.sortBy();
+    const RARITY_ORDER = { Legendary: 4, Epic: 3, Rare: 2, Common: 1 };
+    items.sort((a, b) => {
+      if (sortVal === 'rarity-desc') {
+        const diff = (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0);
+        if (diff !== 0) return diff;
+        return (b.level || 1) - (a.level || 1);
+      } else if (sortVal === 'rarity-asc') {
+        const diff = (RARITY_ORDER[a.rarity] || 0) - (RARITY_ORDER[b.rarity] || 0);
+        if (diff !== 0) return diff;
+        return (a.level || 1) - (b.level || 1);
+      } else if (sortVal === 'level-desc') {
+        const diff = (b.level || 1) - (a.level || 1);
+        if (diff !== 0) return diff;
+        return (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0);
+      } else if (sortVal === 'level-asc') {
+        const diff = (a.level || 1) - (b.level || 1);
+        if (diff !== 0) return diff;
+        return (RARITY_ORDER[a.rarity] || 0) - (RARITY_ORDER[b.rarity] || 0);
+      } else {
+        return 0; // Default: 'newest'
+      }
+    });
+
+    if (sortVal === 'newest') {
+      items.reverse();
+    }
+
+    return items;
+  });
+
+  // Computed signal for currently displayed items (sliced)
+  public readonly displayedInventory = computed(() => {
+    return this.filteredInventory().slice(0, this.itemsToShow());
+  });
+
+  // IntersectionObserver for lazy loading
+  private observer: IntersectionObserver | null = null;
+
+  @ViewChild('scrollAnchor') set scrollAnchor(element: ElementRef | undefined) {
+    if (element) {
+      this.setupObserver(element.nativeElement);
+    } else {
+      this.cleanupObserver();
+    }
+  }
+
+  private setupObserver(element: HTMLElement) {
+    this.cleanupObserver();
+    this.observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        this.itemsToShow.update(num => num + 30);
+      }
+    }, {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0
+    });
+    this.observer.observe(element);
+  }
+
+  private cleanupObserver() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  }
+
+  ngOnDestroy() {
+    this.cleanupObserver();
+  }
+
+  // Filter setters
+  public onSearchInput(event: Event) {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+    this.itemsToShow.set(30);
+  }
+
+  public selectRarity(rarity: string) {
+    this.selectedRarity.set(rarity);
+    this.itemsToShow.set(30);
+  }
+
+  public onSlotSelect(event: Event) {
+    this.selectedSlot.set((event.target as HTMLSelectElement).value);
+    this.itemsToShow.set(30);
+  }
+
+  public onSortSelect(event: Event) {
+    this.sortBy.set((event.target as HTMLSelectElement).value);
+    this.itemsToShow.set(30);
+  }
 
   public t(key: string): string {
     return this.trans.t(key);

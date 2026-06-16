@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
 import { Hero } from '../../core/interfaces/game-state.interface';
@@ -241,11 +241,50 @@ import { TranslationService } from '../../services/translation.service';
             </div>
           }
 
+          <!-- Search & Filters -->
+          <div class="flex flex-col gap-2 mb-4 bg-slate-950/20 p-3 rounded-2xl border border-white/5">
+            <div class="flex gap-2">
+              <!-- Search -->
+              <div class="flex-1 relative">
+                <span class="absolute inset-y-0 left-2.5 flex items-center text-slate-500 text-xs">🔍</span>
+                <input type="text"
+                       [placeholder]="t('Search...')"
+                       (input)="onSearchInput($event)"
+                       [value]="searchQuery()"
+                       class="w-full pl-8 pr-3 py-1.5 bg-slate-900 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition">
+              </div>
+
+              <!-- Sort -->
+              <select (change)="onSortSelect($event)"
+                      [value]="sortBy()"
+                      class="px-2 py-1.5 bg-slate-900 border border-white/10 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-primary/50">
+                <option value="newest">🕒 {{ t('Newest') }}</option>
+                <option value="rarity-desc">💎 {{ t('High Rarity') }}</option>
+                <option value="rarity-asc">💎 {{ t('Low Rarity') }}</option>
+                <option value="level-desc">📈 {{ t('High Level') }}</option>
+                <option value="level-asc">📈 {{ t('Low Level') }}</option>
+              </select>
+            </div>
+
+            <!-- Rarity Quick Filters -->
+            <div class="flex flex-wrap gap-1">
+              @for (r of ['All', 'Common', 'Rare', 'Epic', 'Legendary']; track r) {
+                <button (click)="selectRarity(r)"
+                        [class.bg-slate-800]="selectedRarity() === r"
+                        [class.text-white]="selectedRarity() === r"
+                        [class.text-slate-400]="selectedRarity() !== r"
+                        class="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition">
+                  {{ t(r) }}
+                </button>
+              }
+            </div>
+          </div>
+
           <!-- Inventory List -->
           <div class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{{ t('Available in Armory') }}</p>
             
-            @for (item of getMatchingInventory(selected.slot); track item.id) {
+            @for (item of displayedEquipInventory(); track item.id) {
               <div class="p-3 bg-slate-950/30 hover:bg-slate-950/60 border border-white/5 hover:border-primary/20 rounded-xl flex items-center justify-between transition-all group/item">
                 <div>
                   <span [class]="getRarityBadgeClass(item.rarity)" class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider mb-1 inline-block">
@@ -264,6 +303,12 @@ import { TranslationService } from '../../services/translation.service';
                 {{ t('No matching ' + selected.slot.toLowerCase() + 's in your armory. Go clear dungeons to find loot!') }}
               </div>
             }
+
+            @if (filteredEquipInventory().length > displayedEquipInventory().length) {
+              <div #modalScrollAnchor class="text-center py-2 text-xs text-slate-500 font-bold animate-pulse">
+                {{ t('Loading more items...') }}
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -275,7 +320,7 @@ import { TranslationService } from '../../services/translation.service';
     }
   `]
 })
-export class HeroesComponent {
+export class HeroesComponent implements OnDestroy {
   private readonly gameService = inject(GameService);
   public readonly trans = inject(TranslationService);
   
@@ -285,6 +330,118 @@ export class HeroesComponent {
   public readonly dungeons = this.gameService.dungeons;
   public readonly gold = computed(() => this.gameService.resources().gold);
   public readonly gameState = this.gameService.state;
+
+  // Search, Filter & Pagination Signals for equip modal
+  public readonly searchQuery = signal<string>('');
+  public readonly selectedRarity = signal<string>('All');
+  public readonly sortBy = signal<string>('rarity-desc');
+  public readonly itemsToShow = signal<number>(20);
+
+  public readonly filteredEquipInventory = computed(() => {
+    const selected = this.selectedEquipSlot();
+    if (!selected) return [];
+    
+    let items = this.gameService.inventory().filter(item => item.slot === selected.slot);
+
+    // Filter by rarity
+    const rarity = this.selectedRarity();
+    if (rarity !== 'All') {
+      items = items.filter(i => i.rarity === rarity);
+    }
+    
+    // Filter by search query
+    const query = this.searchQuery().trim().toLowerCase();
+    if (query) {
+      items = items.filter(i => i.name.toLowerCase().includes(query));
+    }
+
+    // Sort
+    const sortVal = this.sortBy();
+    const RARITY_ORDER = { Legendary: 4, Epic: 3, Rare: 2, Common: 1 };
+    items.sort((a, b) => {
+      if (sortVal === 'rarity-desc') {
+        const diff = (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0);
+        if (diff !== 0) return diff;
+        return (b.level || 1) - (a.level || 1);
+      } else if (sortVal === 'rarity-asc') {
+        const diff = (RARITY_ORDER[a.rarity] || 0) - (RARITY_ORDER[b.rarity] || 0);
+        if (diff !== 0) return diff;
+        return (a.level || 1) - (b.level || 1);
+      } else if (sortVal === 'level-desc') {
+        const diff = (b.level || 1) - (a.level || 1);
+        if (diff !== 0) return diff;
+        return (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0);
+      } else if (sortVal === 'level-asc') {
+        const diff = (a.level || 1) - (b.level || 1);
+        if (diff !== 0) return diff;
+        return (RARITY_ORDER[a.rarity] || 0) - (RARITY_ORDER[b.rarity] || 0);
+      } else {
+        return 0; // Default: 'newest'
+      }
+    });
+
+    if (sortVal === 'newest') {
+      items.reverse();
+    }
+
+    return items;
+  });
+
+  public readonly displayedEquipInventory = computed(() => {
+    return this.filteredEquipInventory().slice(0, this.itemsToShow());
+  });
+
+  // IntersectionObserver for lazy loading in the modal
+  private observer: IntersectionObserver | null = null;
+
+  @ViewChild('modalScrollAnchor') set modalScrollAnchor(element: ElementRef | undefined) {
+    if (element) {
+      this.setupObserver(element.nativeElement);
+    } else {
+      this.cleanupObserver();
+    }
+  }
+
+  private setupObserver(element: HTMLElement) {
+    this.cleanupObserver();
+    this.observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        this.itemsToShow.update(num => num + 20);
+      }
+    }, {
+      root: null,
+      rootMargin: '50px',
+      threshold: 0
+    });
+    this.observer.observe(element);
+  }
+
+  private cleanupObserver() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+  }
+
+  ngOnDestroy() {
+    this.cleanupObserver();
+  }
+
+  // Filter setters
+  public onSearchInput(event: Event) {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+    this.itemsToShow.set(20);
+  }
+
+  public selectRarity(rarity: string) {
+    this.selectedRarity.set(rarity);
+    this.itemsToShow.set(20);
+  }
+
+  public onSortSelect(event: Event) {
+    this.sortBy.set((event.target as HTMLSelectElement).value);
+    this.itemsToShow.set(20);
+  }
 
   public t(key: string): string {
     return this.trans.t(key);
@@ -342,6 +499,10 @@ export class HeroesComponent {
 
   public openEquipModal(heroId: string, slot: 'Weapon' | 'Armor' | 'Accessory') {
     this.selectedEquipSlot.set({ heroId, slot });
+    this.searchQuery.set('');
+    this.selectedRarity.set('All');
+    this.sortBy.set('rarity-desc');
+    this.itemsToShow.set(20);
   }
 
   public closeEquipModal() {
@@ -358,9 +519,7 @@ export class HeroesComponent {
     return hero.equipment[slot.toLowerCase() as 'weapon' | 'armor' | 'accessory'];
   }
 
-  public getMatchingInventory(slot: 'Weapon' | 'Armor' | 'Accessory'): any[] {
-    return this.gameService.inventory().filter(item => item.slot === slot);
-  }
+
 
   public equipItem(heroId: string, itemId: string, slot: 'Weapon' | 'Armor' | 'Accessory') {
     this.gameService.equipItem(heroId, itemId, slot);
